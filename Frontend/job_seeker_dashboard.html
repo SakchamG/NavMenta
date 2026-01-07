@@ -1,0 +1,3212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NavMenta - AI-Powered Job Seeker Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #8B7FFF;
+            --primary-light: #A396FF;
+            --primary-dark: #6A5DC7;
+            --dark-bg: #0A0E27;
+            --dark-surface: #151B3C;
+            --dark-card: #1E2648;
+            --text-primary: #FFFFFF;
+            --text-secondary: #B8BED9;
+            --accent-1: #FF7FA3;
+            --accent-2: #7FFFD4;
+            --accent-3: #FFB87F;
+            --accent-4: #A78BFA;
+            --success: #4CAF50;
+            --warning: #FF9800;
+            --error: #F44336;
+            --accessibility: #4FC3F7;
+            --gradient-1: linear-gradient(135deg, #8B7FFF 0%, #FF7FA3 100%);
+            --gradient-2: linear-gradient(135deg, #7FFFD4 0%, #8B7FFF 100%);
+            --gradient-3: linear-gradient(135deg, #4FC3F7 0%, #7FFFD4 100%);
+            --shadow-glow: 0 0 20px rgba(139, 127, 255, 0.2);
+            --shadow-card: 0 4px 12px rgba(0, 0, 0, 0.1);
+            --border-radius: 12px;
+            --spacing-xs: 0.25rem;
+            --spacing-sm: 0.5rem;
+            --spacing-md: 1rem;
+            --spacing-lg: 1.5rem;
+            --spacing-xl: 2rem;
+            --glass-bg: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --sidebar-width: 240px;
+            --sidebar-collapsed: 60px;
+            --top-navbar-height: 64px;
+        }
+
+        [data-theme="light"] {
+            --dark-bg: #F5F7FF;
+            --dark-surface: #FFFFFF;
+            --dark-card: #FFFFFF;
+            --text-primary: #151B3C;
+            --text-secondary: #5A6378;
+            --shadow-card: 0 4px 12px rgba(0, 0, 0, 0.05);
+            --glass-bg: rgba(255, 255, 255, 0.7);
+            --glass-border: rgba(0, 0, 0, 0.05);
+        }
+
+        [data-accessibility="high-contrast"] {
+            --primary: #0000FF;
+            --primary-light: #3333FF;
+            --primary-dark: #0000CC;
+            --dark-bg: #000000;
+            --dark-surface: #111111;
+            --dark-card: #222222;
+            --text-primary: #FFFFFF;
+            --text-secondary: #CCCCCC;
+            --accent-1: #FF0000;
+            --accent-2: #00FF00;
+            --accent-3: #FFFF00;
+            --accent-4: #FF00FF;
+            --success: #00FF00;
+            --warning: #FFFF00;
+            --error: #FF0000;
+            --accessibility: #00FFFF;
+        }
+
+        [data-font="dyslexia"] {
+            font-family: 'Comic Sans MS', 'OpenDyslexic', sans-serif;
+            letter-spacing: 0.05em;
+            line-height: 1.8;
+        }
+
+        [data-font-size="large"] {
+            font-size: 18px;
+        }
+
+        [data-font-size="x-large"] {
+            font-size: 20px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: var(--dark-bg);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            overflow-x: hidden;
+            transition: all 0.3s ease;
+            line-height: 1.5;
+            font-size: 14px;
+        }
+
+        /* Animated Background */
+        .bg-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .bg-circle {
+            position: absolute;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(139, 127, 255, 0.05) 0%, rgba(139, 127, 255, 0) 70%);
+            animation: float 20s infinite linear;
+        }
+
+        .bg-circle:nth-child(1) {
+            width: 200px;
+            height: 200px;
+            top: 10%;
+            left: 5%;
+            animation-delay: 0s;
+        }
+
+        .bg-circle:nth-child(2) {
+            width: 150px;
+            height: 150px;
+            top: 60%;
+            left: 80%;
+            animation-delay: -5s;
+        }
+
+        .bg-circle:nth-child(3) {
+            width: 250px;
+            height: 250px;
+            top: 30%;
+            left: 70%;
+            animation-delay: -10s;
+        }
+
+        .bg-circle:nth-child(4) {
+            width: 180px;
+            height: 180px;
+            top: 80%;
+            left: 10%;
+            animation-delay: -15s;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translate(0, 0) rotate(0deg);
+            }
+            25% {
+                transform: translate(10px, 10px) rotate(90deg);
+            }
+            50% {
+                transform: translate(0, 20px) rotate(180deg);
+            }
+            75% {
+                transform: translate(-10px, 10px) rotate(270deg);
+            }
+            100% {
+                transform: translate(0, 0) rotate(360deg);
+            }
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: var(--sidebar-width);
+            background: var(--dark-surface);
+            padding: var(--spacing-md);
+            display: flex;
+            flex-direction: column;
+            transition: all 0.3s ease;
+            z-index: 10;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            left: 0;
+            top: 0;
+        }
+
+        .sidebar.collapsed {
+            width: var(--sidebar-collapsed);
+        }
+
+        .sidebar.collapsed .logo span,
+        .sidebar.collapsed .nav-title,
+        .sidebar.collapsed .nav-item span,
+        .sidebar.collapsed .accessibility-badge,
+        .sidebar.collapsed .submenu {
+            display: none !important;
+        }
+
+        .sidebar.collapsed .nav-item {
+            justify-content: center;
+            padding: var(--spacing-sm);
+        }
+
+        .hamburger-menu {
+            position: absolute;
+            top: var(--spacing-md);
+            right: var(--spacing-md);
+            background: transparent;
+            border: none;
+            color: var(--text-primary);
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 11;
+            width: 32px;
+            height: 32px;
+            border-radius: var(--border-radius);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .hamburger-menu:hover {
+            background: rgba(139, 127, 255, 0.1);
+            color: var(--primary);
+        }
+
+        .logo {
+            font-size: 1.4rem;
+            font-weight: bold;
+            background: var(--gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: var(--spacing-lg);
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            padding: var(--spacing-sm);
+            transition: all 0.3s ease;
+        }
+
+        .sidebar.collapsed .logo {
+            font-size: 1rem;
+            justify-content: center;
+            padding: 0;
+        }
+
+        .logo::before {
+            content: "⚡";
+            font-size: 0.9rem;
+        }
+
+        .nav-section {
+            margin-bottom: var(--spacing-lg);
+            transition: all 0.3s ease;
+        }
+
+        .nav-title {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: var(--spacing-sm);
+            padding-left: var(--spacing-sm);
+            transition: all 0.3s ease;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            padding: var(--spacing-sm);
+            border-radius: var(--border-radius);
+            margin-bottom: var(--spacing-xs);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            color: var(--text-secondary);
+            position: relative;
+            overflow: hidden;
+            font-size: 0.9rem;
+        }
+
+        .nav-item:hover, .nav-item.active {
+            background: rgba(139, 127, 255, 0.1);
+            color: var(--text-primary);
+        }
+
+        .nav-item.active {
+            background: var(--gradient-1);
+            color: white;
+            box-shadow: var(--shadow-glow);
+        }
+
+        .nav-item i {
+            width: 18px;
+            text-align: center;
+            font-size: 0.9rem;
+        }
+
+        .accessibility-badge {
+            background: var(--accessibility);
+            color: var(--dark-bg);
+            font-size: 0.65rem;
+            padding: 0.15rem 0.4rem;
+            border-radius: 10px;
+            margin-left: auto;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        /* Top Navbar */
+        .top-navbar {
+            position: fixed;
+            top: 0;
+            left: var(--sidebar-width);
+            right: 0;
+            background: var(--dark-surface);
+            padding: var(--spacing-md) var(--spacing-lg);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            z-index: 9;
+            transition: all 0.3s ease;
+            height: var(--top-navbar-height);
+        }
+
+        .sidebar.collapsed ~ .top-navbar {
+            left: var(--sidebar-collapsed);
+        }
+
+        .search-container {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+        }
+
+        .search-bar {
+            display: flex;
+            background: var(--dark-card);
+            border-radius: 50px;
+            padding: var(--spacing-xs);
+            width: 320px;
+            box-shadow: var(--shadow-card);
+            transition: all 0.3s ease;
+            border: 1px solid transparent;
+        }
+
+        .search-bar:focus-within {
+            border-color: var(--primary);
+            box-shadow: var(--shadow-glow);
+        }
+
+        .search-bar input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            padding: var(--spacing-sm) var(--spacing-md);
+            color: var(--text-primary);
+            font-size: 0.9rem;
+            outline: none;
+        }
+
+        .search-bar button {
+            background: var(--gradient-1);
+            border: none;
+            border-radius: 50%;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: white;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .search-bar button:hover {
+            transform: scale(1.05);
+        }
+
+        .voice-assistant {
+            background: var(--gradient-2);
+            border: none;
+            border-radius: 50%;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: white;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .voice-assistant:hover {
+            transform: scale(1.05);
+        }
+
+        .voice-assistant.listening {
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(127, 255, 212, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(127, 255, 212, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(127, 255, 212, 0); }
+        }
+
+        .nav-controls {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+        }
+
+        .theme-toggle, .notifications, .profile-menu, .quick-add {
+            background: var(--dark-card);
+            border: none;
+            border-radius: 50%;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: var(--text-primary);
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .theme-toggle:hover, .notifications:hover, .profile-menu:hover, .quick-add:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: -4px;
+            right: -4px;
+            background: var(--accent-1);
+            color: white;
+            border-radius: 50%;
+            width: 16px;
+            height: 16px;
+            font-size: 0.6rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .profile-dropdown, .notification-panel, .quick-add-menu {
+            position: absolute;
+            top: 50px;
+            right: 0;
+            background: var(--dark-surface);
+            border-radius: var(--border-radius);
+            padding: var(--spacing-md);
+            box-shadow: var(--shadow-card);
+            min-width: 180px;
+            z-index: 100;
+            display: none;
+        }
+
+        .quick-add-menu {
+            min-width: 220px;
+        }
+
+        .profile-dropdown.show, .notification-panel.show, .quick-add-menu.show {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .profile-dropdown a, .notification-item, .quick-add-item {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            padding: var(--spacing-sm);
+            border-radius: var(--border-radius);
+            color: var(--text-primary);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            font-size: 0.85rem;
+        }
+
+        .profile-dropdown a:hover, .notification-item:hover, .quick-add-item:hover {
+            background: rgba(139, 127, 255, 0.1);
+        }
+
+        .notification-item {
+            border-bottom: 1px solid rgba(139, 127, 255, 0.1);
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .notification-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+
+        /* AI Assistant */
+        .ai-assistant {
+            position: fixed;
+            bottom: var(--spacing-lg);
+            right: var(--spacing-lg);
+            width: 50px;
+            height: 50px;
+            background: var(--gradient-1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+            cursor: pointer;
+            box-shadow: var(--shadow-glow);
+            z-index: 100;
+            transition: all 0.3s ease;
+        }
+
+        .ai-assistant:hover {
+            transform: scale(1.05);
+        }
+
+        .ai-panel {
+            position: fixed;
+            bottom: 70px;
+            right: var(--spacing-lg);
+            width: 300px;
+            background: var(--dark-surface);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-card);
+            padding: var(--spacing-md);
+            z-index: 99;
+            display: none;
+        }
+
+        .ai-panel.show {
+            display: block;
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .ai-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .ai-header h3 {
+            font-size: 1rem;
+        }
+
+        .ai-suggestions {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-sm);
+        }
+
+        .ai-suggestion {
+            background: var(--dark-card);
+            padding: var(--spacing-sm);
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.85rem;
+        }
+
+        .ai-suggestion:hover {
+            background: rgba(139, 127, 255, 0.1);
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            padding: var(--spacing-lg);
+            overflow-y: auto;
+            position: relative;
+            margin-top: var(--top-navbar-height);
+            margin-left: var(--sidebar-width);
+            transition: all 0.3s ease;
+        }
+
+        .sidebar.collapsed ~ .main-content {
+            margin-left: var(--sidebar-collapsed);
+        }
+
+        .dashboard-section {
+            margin-bottom: var(--spacing-xl);
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-md);
+        }
+
+        .section-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            position: relative;
+            padding-bottom: var(--spacing-xs);
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 30px;
+            height: 2px;
+            background: var(--gradient-1);
+            border-radius: 2px;
+        }
+
+        .view-all {
+            color: var(--primary);
+            text-decoration: none;
+            font-size: 0.8rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+            transition: all 0.3s ease;
+        }
+
+        .view-all:hover {
+            gap: var(--spacing-sm);
+        }
+
+        /* Cards Grid */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: var(--spacing-md);
+        }
+
+        .card {
+            background: var(--dark-card);
+            border-radius: var(--border-radius);
+            padding: var(--spacing-md);
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow-card);
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(139, 127, 255, 0.1);
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: var(--primary);
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-glow);
+        }
+
+        .job-card::before {
+            background: var(--primary);
+        }
+
+        .mentor-card::before {
+            background: var(--accent-1);
+        }
+
+        .company-card::before {
+            background: var(--accent-2);
+        }
+
+        .accessibility-card::before {
+            background: var(--accessibility);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .card-title {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .card-subtitle {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .card-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--spacing-xs);
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .tag {
+            background: rgba(139, 127, 255, 0.1);
+            color: var(--primary-light);
+            padding: 0.2rem 0.6rem;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            transition: all 0.3s ease;
+        }
+
+        .accessibility-tag {
+            background: rgba(79, 195, 247, 0.1);
+            color: var(--accessibility);
+        }
+
+        .card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: var(--spacing-sm);
+        }
+
+        .card-actions {
+            display: flex;
+            gap: var(--spacing-xs);
+        }
+
+        .btn {
+            padding: 0.4rem 0.8rem;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+        }
+
+        .btn-primary {
+            background: var(--gradient-1);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(139, 127, 255, 0.3);
+        }
+
+        .btn-accessibility {
+            background: var(--gradient-3);
+            color: var(--dark-bg);
+        }
+
+        .btn-accessibility:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(79, 195, 247, 0.3);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--primary);
+            color: var(--primary);
+        }
+
+        .btn-outline:hover {
+            background: rgba(139, 127, 255, 0.1);
+        }
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: var(--spacing-md);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .stat-card {
+            background: var(--dark-card);
+            border-radius: var(--border-radius);
+            padding: var(--spacing-md);
+            text-align: center;
+            box-shadow: var(--shadow-card);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-3px);
+        }
+
+        .stat-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto var(--spacing-sm);
+            font-size: 1.2rem;
+        }
+
+        .stat-1 { background: rgba(139, 127, 255, 0.1); color: var(--primary); }
+        .stat-2 { background: rgba(255, 127, 163, 0.1); color: var(--accent-1); }
+        .stat-3 { background: rgba(127, 255, 212, 0.1); color: var(--accent-2); }
+        .stat-4 { background: rgba(255, 184, 127, 0.1); color: var(--accent-3); }
+
+        .stat-value {
+            font-size: 1.4rem;
+            font-weight: bold;
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        /* Quick Actions */
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: var(--spacing-md);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .action-btn {
+            background: var(--dark-card);
+            border: none;
+            border-radius: var(--border-radius);
+            padding: var(--spacing-md);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: var(--spacing-sm);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: var(--text-primary);
+            text-decoration: none;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-glow);
+        }
+
+        .action-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
+            color: white;
+        }
+
+        .action-btn:hover .action-icon {
+            transform: scale(1.05);
+        }
+
+        .action-1 { background: var(--gradient-1); }
+        .action-2 { background: var(--gradient-2); }
+        .action-3 { background: linear-gradient(135deg, #FF7FA3 0%, #FFB87F 100%); }
+        .action-4 { background: var(--gradient-3); }
+
+        .action-label {
+            font-weight: 500;
+            font-size: 0.8rem;
+            text-align: center;
+        }
+
+        /* Profile Section */
+        .profile-section {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: var(--spacing-lg);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .profile-card {
+            background: var(--dark-card);
+            border-radius: var(--border-radius);
+            padding: var(--spacing-md);
+            box-shadow: var(--shadow-card);
+        }
+
+        .profile-header {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+            margin-bottom: var(--spacing-md);
+        }
+
+        .profile-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: var(--gradient-2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: white;
+        }
+
+        .profile-info h2 {
+            font-size: 1.2rem;
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .profile-info p {
+            color: var(--text-secondary);
+            margin-bottom: var(--spacing-sm);
+            font-size: 0.85rem;
+        }
+
+        .profile-stats {
+            display: flex;
+            gap: var(--spacing-md);
+        }
+
+        .profile-stat {
+            text-align: center;
+        }
+
+        .profile-stat-value {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: var(--primary);
+        }
+
+        .profile-stat-label {
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+        }
+
+        /* Progress Bars */
+        .progress-section {
+            margin-bottom: var(--spacing-md);
+        }
+
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-xs);
+            font-size: 0.85rem;
+        }
+
+        .progress-bar {
+            height: 6px;
+            background: var(--dark-surface);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--gradient-1);
+            border-radius: 3px;
+            transition: width 0.5s ease;
+        }
+
+        /* Career Path */
+        .career-path {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-sm);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .path-milestone {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            padding: var(--spacing-sm);
+            background: var(--dark-card);
+            border-radius: var(--border-radius);
+            transition: all 0.3s ease;
+        }
+
+        .path-milestone:hover {
+            transform: translateX(3px);
+        }
+
+        .milestone-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            background: var(--gradient-1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.9rem;
+        }
+
+        .milestone-info {
+            flex: 1;
+        }
+
+        .milestone-title {
+            font-weight: 600;
+            margin-bottom: 0.1rem;
+            font-size: 0.85rem;
+        }
+
+        .milestone-description {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        .milestone-status {
+            font-size: 0.7rem;
+            font-weight: 600;
+            padding: 0.2rem 0.6rem;
+            border-radius: 12px;
+            background: rgba(79, 195, 247, 0.1);
+            color: var(--accessibility);
+        }
+
+        /* AI Career Summary */
+        .ai-career-summary {
+            background: var(--gradient-1);
+            border-radius: var(--border-radius);
+            padding: var(--spacing-md);
+            margin-bottom: var(--spacing-lg);
+            color: white;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .ai-career-summary.dismissed {
+            opacity: 0;
+            height: 0;
+            padding: 0;
+            margin: 0;
+            overflow: hidden;
+            transform: scaleY(0);
+            transform-origin: top;
+            pointer-events: none;
+        }
+
+        .ai-summary-cut {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: white;
+            font-size: 0.8rem;
+            transition: all 0.3s ease;
+            z-index: 2;
+        }
+
+        .ai-summary-cut:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.1);
+        }
+
+        .ai-summary-cut:active {
+            transform: scale(0.95);
+        }
+
+        .ai-career-summary::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.1) 50%, transparent 70%);
+            animation: shimmer 3s infinite linear;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .ai-summary-text {
+            font-size: 0.9rem;
+            line-height: 1.4;
+            position: relative;
+            z-index: 1;
+            padding-right: 30px;
+        }
+
+        /* Daily Motivation Section */
+        .motivation-card {
+            background: var(--gradient-2);
+            border-radius: var(--border-radius);
+            padding: var(--spacing-md);
+            color: var(--dark-bg);
+            position: relative;
+            overflow: hidden;
+            margin-bottom: var(--spacing-lg);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .motivation-card.dismissed {
+            opacity: 0;
+            height: 0;
+            padding: 0;
+            margin: 0;
+            overflow: hidden;
+            transform: scaleY(0);
+            transform-origin: top;
+            pointer-events: none;
+        }
+
+        .motivation-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .motivation-title {
+            font-weight: 600;
+            font-size: 1rem;
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .motivation-text {
+            font-size: 0.9rem;
+            line-height: 1.4;
+            margin-bottom: var(--spacing-sm);
+            flex: 1;
+            padding-right: var(--spacing-md);
+        }
+
+        .motivation-actions {
+            display: flex;
+            gap: var(--spacing-sm);
+            align-items: center;
+        }
+
+        .motivation-dismiss {
+            background: rgba(0, 0, 0, 0.1);
+            border: none;
+            border-radius: 50%;
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: var(--dark-bg);
+            font-size: 0.8rem;
+            transition: all 0.3s ease;
+        }
+
+        .motivation-dismiss:hover {
+            background: rgba(0, 0, 0, 0.2);
+            transform: scale(1.1);
+        }
+
+        .motivation-share {
+            background: rgba(0, 0, 0, 0.1);
+            border: none;
+            border-radius: 6px;
+            padding: 0.4rem 0.8rem;
+            font-size: 0.8rem;
+            cursor: pointer;
+            color: var(--dark-bg);
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+            transition: all 0.3s ease;
+        }
+
+        .motivation-share:hover {
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        .motivation-restore {
+            margin-top: var(--spacing-sm);
+            animation: fadeIn 0.5s ease;
+        }
+
+        /* Achievement Badges */
+        .achievement-badges {
+            display: flex;
+            gap: var(--spacing-sm);
+            margin-bottom: var(--spacing-md);
+        }
+
+        .badge {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            background: var(--dark-surface);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .badge:hover {
+            transform: scale(1.1);
+        }
+
+        .badge-tooltip {
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--dark-surface);
+            color: var(--text-primary);
+            padding: var(--spacing-xs) var(--spacing-sm);
+            border-radius: var(--border-radius);
+            font-size: 0.7rem;
+            white-space: nowrap;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow-card);
+            margin-bottom: var(--spacing-xs);
+            z-index: 10;
+        }
+
+        .badge:hover .badge-tooltip {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* AI Job Finder Panel */
+        .ai-job-finder {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 400px;
+            max-width: 90%;
+            background: var(--dark-surface);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-card);
+            padding: var(--spacing-lg);
+            z-index: 1000;
+            display: none;
+        }
+
+        .ai-job-finder.show {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .ai-job-finder-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-md);
+        }
+
+        .ai-chat-messages {
+            height: 200px;
+            overflow-y: auto;
+            margin-bottom: var(--spacing-md);
+            padding: var(--spacing-sm);
+            background: var(--dark-card);
+            border-radius: var(--border-radius);
+        }
+
+        .ai-chat-input {
+            display: flex;
+            gap: var(--spacing-sm);
+        }
+
+        .ai-chat-input input {
+            flex: 1;
+            padding: var(--spacing-sm);
+            border-radius: var(--border-radius);
+            border: 1px solid var(--primary);
+            background: var(--dark-card);
+            color: var(--text-primary);
+        }
+
+        /* Accessibility Panel */
+        .accessibility-panel {
+            position: fixed;
+            bottom: var(--spacing-lg);
+            left: var(--spacing-lg);
+            background: var(--dark-surface);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-card);
+            padding: var(--spacing-md);
+            z-index: 100;
+            display: none;
+            width: 250px;
+        }
+
+        .accessibility-panel.show {
+            display: block;
+            animation: slideUp 0.3s ease;
+        }
+
+        .accessibility-option {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            padding: var(--spacing-sm);
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            user-select: none;
+        }
+
+        .accessibility-option:hover, .accessibility-option.active {
+            background: rgba(139, 127, 255, 0.1);
+        }
+
+        /* Toast Notifications */
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--dark-surface);
+            padding: var(--spacing-md);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-card);
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            z-index: 1000;
+            transform: translateX(150%);
+            transition: transform 0.3s ease;
+            max-width: 350px;
+        }
+
+        .toast.show {
+            transform: translateX(0);
+        }
+
+        /* Loading Spinner */
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid rgba(139, 127, 255, 0.1);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Summary Restore Button */
+        .summary-restore, .motivation-restore {
+            margin-bottom: var(--spacing-md);
+            animation: fadeIn 0.5s ease;
+        }
+
+        .btn-sm {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            :root {
+                --sidebar-width: 60px;
+            }
+            
+            .sidebar:not(.collapsed) {
+                width: 240px;
+            }
+            
+            .cards-grid {
+                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            }
+            
+            .top-navbar {
+                left: 60px;
+            }
+            
+            .sidebar:not(.collapsed) ~ .top-navbar {
+                left: 240px;
+            }
+            
+            .profile-section {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            body {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 100%;
+                flex-direction: row;
+                overflow-x: auto;
+                padding: var(--spacing-sm);
+                position: fixed;
+                top: 0;
+                left: 0;
+                height: 60px;
+                z-index: 100;
+            }
+            
+            .sidebar.collapsed {
+                width: 100%;
+            }
+            
+            .nav-section {
+                margin-bottom: 0;
+                margin-right: var(--spacing-md);
+            }
+            
+            .nav-title {
+                display: none;
+            }
+            
+            .main-content {
+                padding: var(--spacing-md);
+                margin-top: 60px;
+                margin-left: 0;
+            }
+            
+            .top-navbar {
+                position: fixed;
+                top: 60px;
+                left: 0;
+                right: 0;
+                padding: var(--spacing-sm);
+                height: 50px;
+            }
+            
+            .search-bar {
+                width: 100%;
+                max-width: 200px;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .ai-panel {
+                width: calc(100% - 2rem);
+                right: 1rem;
+            }
+            
+            .profile-header {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .profile-stats {
+                justify-content: center;
+            }
+            
+            .quick-actions {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .motivation-card {
+                padding: var(--spacing-sm);
+            }
+            
+            .motivation-header {
+                flex-direction: column;
+                gap: var(--spacing-sm);
+            }
+            
+            .motivation-text {
+                padding-right: 0;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .cards-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .quick-actions {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .search-bar {
+                max-width: 150px;
+            }
+            
+            .ai-job-finder {
+                width: 95%;
+                padding: var(--spacing-md);
+            }
+        }
+    </style>
+</head>
+<body data-theme="dark" data-accessibility="normal" data-font="normal" data-font-size="normal">
+    <!-- Animated Background -->
+    <div class="bg-animation">
+        <div class="bg-circle"></div>
+        <div class="bg-circle"></div>
+        <div class="bg-circle"></div>
+        <div class="bg-circle"></div>
+    </div>
+    
+    <!-- Toast Notification -->
+    <div class="toast" id="toast">
+        <i class="fas fa-check-circle" style="color: var(--success);"></i>
+        <span id="toastMessage">Operation successful!</span>
+    </div>
+    
+    <!-- Sidebar Navigation -->
+    <div class="sidebar">
+        <button class="hamburger-menu" id="hamburgerMenu" aria-label="Toggle sidebar">
+            <i class="fas fa-bars"></i>
+        </button>
+        
+        <div class="logo">
+            <span>NavMenta</span>
+        </div>
+        
+        <div class="nav-section">
+            <div class="nav-title">Main</div>
+            <a href="#" class="nav-item active" data-page="dashboard">
+                <i class="fas fa-home"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="#" class="nav-item" data-page="job-portal">
+                <i class="fas fa-briefcase"></i>
+                <span>Job Portal</span>
+            </a>
+            <a href="#" class="nav-item" data-page="saved-jobs">
+                <i class="fas fa-bookmark"></i>
+                <span>Saved Jobs</span>
+            </a>
+            <a href="#" class="nav-item" data-page="applications">
+                <i class="fas fa-file-alt"></i>
+                <span>Applications</span>
+            </a>
+        </div>
+        
+        <div class="nav-section">
+            <div class="nav-title">Career</div>
+            <a href="#" class="nav-item" data-page="roadmap">
+                <i class="fas fa-road"></i>
+                <span>Roadmap</span>
+            </a>
+            <a href="#" class="nav-item" data-page="skills">
+                <i class="fas fa-graduation-cap"></i>
+                <span>Skills</span>
+            </a>
+            <a href="#" class="nav-item" data-page="mentorship">
+                <i class="fas fa-user-friends"></i>
+                <span>Mentorship</span>
+            </a>
+        </div>
+        
+        <div class="nav-section">
+            <div class="nav-title">Account</div>
+            <a href="#" class="nav-item" data-page="notifications">
+                <i class="fas fa-bell"></i>
+                <span>Notifications</span>
+                <span class="accessibility-badge">5</span>
+            </a>
+            <a href="#" class="nav-item" data-page="settings">
+                <i class="fas fa-cog"></i>
+                <span>Settings</span>
+            </a>
+            <a href="#" class="nav-item" id="accessibilityToggle" data-page="accessibility">
+                <i class="fas fa-universal-access"></i>
+                <span>Accessibility</span>
+            </a>
+        </div>
+    </div>
+    
+    <!-- Top Navbar -->
+    <div class="top-navbar">
+        <div class="search-container">
+            <div class="search-bar">
+                <input type="text" id="searchInput" placeholder="Ask AI: 'Find remote React jobs paying above 1LPM'" aria-label="Search jobs">
+                <button id="searchButton" aria-label="Search">
+                    <i class="fas fa-search"></i>
+                </button>
+            </div>
+            <button class="voice-assistant" id="voiceAssistant" aria-label="Voice assistant">
+                <i class="fas fa-microphone"></i>
+            </button>
+        </div>
+        
+        <div class="nav-controls">
+            <button class="quick-add" id="quickAdd" aria-label="Quick add">
+                <i class="fas fa-plus"></i>
+            </button>
+            <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+                <i class="fas fa-moon"></i>
+            </button>
+            
+            <div class="notifications-container">
+                <button class="notifications" id="notificationsBtn" aria-label="Notifications">
+                    <i class="fas fa-bell"></i>
+                    <span class="notification-badge">5</span>
+                </button>
+                <div class="notification-panel" id="notificationPanel">
+                    <div class="notification-item">
+                        <i class="fas fa-briefcase" style="color: var(--primary);"></i>
+                        <div>
+                            <div>New job matches your profile</div>
+                            <small>Frontend Developer at TechCorp</small>
+                        </div>
+                    </div>
+                    <div class="notification-item">
+                        <i class="fas fa-user-friends" style="color: var(--accent-1);"></i>
+                        <div>
+                            <div>Mentorship session tomorrow</div>
+                            <small>With Sarah Johnson at 2 PM</small>
+                        </div>
+                    </div>
+                    <div class="notification-item">
+                        <i class="fas fa-calendar-check" style="color: var(--success);"></i>
+                        <div>
+                            <div>Application status updated</div>
+                            <small>Interview scheduled for DataInsights</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="profile-container">
+                <button class="profile-menu" id="profileMenu" aria-label="Profile menu">
+                    <i class="fas fa-user"></i>
+                </button>
+                <div class="profile-dropdown" id="profileDropdown">
+                    <a href="#" data-action="view-profile">
+                        <i class="fas fa-user"></i>
+                        <span>View Profile</span>
+                    </a>
+                    <a href="#" data-action="edit-profile">
+                        <i class="fas fa-edit"></i>
+                        <span>Edit Profile</span>
+                    </a>
+                    <a href="#" data-action="settings">
+                        <i class="fas fa-cog"></i>
+                        <span>Settings</span>
+                    </a>
+                    <a href="#" data-action="logout">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span>Logout</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Add Menu -->
+    <div class="quick-add-menu" id="quickAddMenu">
+        <div class="quick-add-item" data-action="add-note">
+            <i class="fas fa-sticky-note"></i>
+            <span>Add Note</span>
+        </div>
+        <div class="quick-add-item" data-action="save-job">
+            <i class="fas fa-briefcase"></i>
+            <span>Save Job</span>
+        </div>
+        <div class="quick-add-item" data-action="update-roadmap">
+            <i class="fas fa-road"></i>
+            <span>Update Roadmap</span>
+        </div>
+        <div class="quick-add-item" data-action="add-achievement">
+            <i class="fas fa-trophy"></i>
+            <span>Add Achievement</span>
+        </div>
+    </div>
+    
+    <!-- AI Assistant -->
+    <div class="ai-assistant" id="aiAssistant" aria-label="AI Assistant">
+        <i class="fas fa-robot"></i>
+    </div>
+    
+    <div class="ai-panel" id="aiPanel">
+        <div class="ai-header">
+            <h3>AI Career Assistant</h3>
+            <button class="btn btn-outline" id="closeAiPanel" aria-label="Close AI panel">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="ai-suggestions" id="aiSuggestionsList">
+            <div class="ai-suggestion" data-action="update-skills">
+                <div>Update your skills with Advanced React course</div>
+                <small>Based on your career goals</small>
+            </div>
+            <div class="ai-suggestion" data-action="view-jobs">
+                <div>3 new jobs match your profile</div>
+                <small>Frontend Developer roles with accessibility focus</small>
+            </div>
+            <div class="ai-suggestion" data-action="connect-mentor">
+                <div>Connect with Sarah Johnson for mentorship</div>
+                <small>Specialized in career transitions</small>
+            </div>
+        </div>
+    </div>
+
+    <!-- AI Job Finder -->
+    <div class="ai-job-finder" id="aiJobFinder">
+        <div class="ai-job-finder-header">
+            <h3>AI Job Finder</h3>
+            <button class="btn btn-outline" id="closeAiJobFinder" aria-label="Close AI job finder">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="ai-chat-messages" id="aiChatMessages">
+            <div class="ai-message">
+                <strong>AI:</strong> Hello! I'm your AI Job Finder. What kind of job are you looking for?
+            </div>
+        </div>
+        <div class="ai-chat-input">
+            <input type="text" id="aiChatInput" placeholder="Type your job preferences..." aria-label="Chat input">
+            <button class="btn btn-primary" id="sendAiMessage" aria-label="Send message">
+                <i class="fas fa-paper-plane"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Accessibility Panel -->
+    <div class="accessibility-panel" id="accessibilityPanel">
+        <div class="accessibility-option" id="voiceCommandsToggle" data-action="voice-commands">
+            <i class="fas fa-microphone"></i>
+            <span>Voice Commands</span>
+        </div>
+        <div class="accessibility-option" id="textToSpeechToggle" data-action="text-to-speech">
+            <i class="fas fa-volume-up"></i>
+            <span>Read Text Aloud</span>
+        </div>
+        <div class="accessibility-option" id="highContrastToggle" data-action="high-contrast">
+            <i class="fas fa-adjust"></i>
+            <span>High Contrast</span>
+        </div>
+        <div class="accessibility-option" id="dyslexiaFontToggle" data-action="dyslexia-font">
+            <i class="fas fa-font"></i>
+            <span>Dyslexia Font</span>
+        </div>
+        <div class="accessibility-option" id="fontSizeIncrease" data-action="increase-font">
+            <i class="fas fa-text-height"></i>
+            <span>Increase Font Size</span>
+        </div>
+        <div class="accessibility-option" id="fontSizeDecrease" data-action="decrease-font">
+            <i class="fas fa-text-height"></i>
+            <span>Decrease Font Size</span>
+        </div>
+    </div>
+    
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Daily AI Report Card -->
+        <div class="ai-career-summary" id="aiCareerSummary">
+            <div class="ai-summary-text">
+                <strong>Good Morning John, here's your daily summary 👇</strong><br>
+                You're 65% ready for Senior Developer roles. Strengthen React Native & Leadership Skills. 
+                3 new jobs added today. Practice TypeScript for 30 mins to reach next milestone.
+            </div>
+            <button class="ai-summary-cut" id="aiSummaryCut" aria-label="Dismiss this summary">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+
+        <!-- Summary Restore Button (Hidden by default) -->
+        <div class="summary-restore" id="summaryRestore" style="display: none;">
+            <button class="btn btn-outline btn-sm" id="restoreSummaryBtn">
+                <i class="fas fa-redo"></i> Restore Daily Summary
+            </button>
+        </div>
+
+        <!-- Daily Motivation Section -->
+        <div class="motivation-card" id="motivationCard">
+            <div class="motivation-header">
+                <div>
+                    <h3 class="motivation-title">✨ Daily Motivation</h3>
+                    <div class="motivation-text">
+                        "Success is not final, failure is not fatal: it is the courage to continue that counts. 
+                        Your small progress today is a giant leap for your future self. Keep going!"
+                    </div>
+                </div>
+                <div class="motivation-actions">
+                    <button class="motivation-dismiss" id="motivationDismiss" aria-label="Dismiss motivation">
+                        <i class="fas fa-times"></i>
+                    </button>
+                    <button class="motivation-share" id="motivationShare" aria-label="Share motivation">
+                        <i class="fas fa-share-alt"></i> Share
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Motivation Restore Button (Hidden by default) -->
+        <div class="motivation-restore" id="motivationRestore" style="display: none;">
+            <button class="btn btn-outline btn-sm" id="restoreMotivationBtn">
+                <i class="fas fa-redo"></i> Restore Daily Motivation
+            </button>
+        </div>
+
+        <!-- Achievement Badges -->
+        <div class="achievement-badges">
+            <div class="badge" data-badge="skill-pro">
+                🧠
+                <div class="badge-tooltip">Skill Pro</div>
+            </div>
+            <div class="badge" data-badge="interview-star">
+                💼
+                <div class="badge-tooltip">Interview Star</div>
+            </div>
+            <div class="badge" data-badge="fast-learner">
+                🚀
+                <div class="badge-tooltip">Fast Learner</div>
+            </div>
+            <div class="badge" data-badge="accessibility-advocate">
+                ♿
+                <div class="badge-tooltip">Accessibility Advocate</div>
+            </div>
+        </div>
+
+        <!-- Profile Section -->
+        <div class="profile-section">
+            <div class="profile-card">
+                <div class="profile-header">
+                    <div class="profile-avatar">JS</div>
+                    <div class="profile-info">
+                        <h2>John Smith</h2>
+                        <p>Frontend Developer | Seeking Senior Roles</p>
+                        <div class="profile-stats">
+                            <div class="profile-stat">
+                                <div class="profile-stat-value">85%</div>
+                                <div class="profile-stat-label">Profile</div>
+                            </div>
+                            <div class="profile-stat">
+                                <div class="profile-stat-value">12</div>
+                                <div class="profile-stat-label">Applications</div>
+                            </div>
+                            <div class="profile-stat">
+                                <div class="profile-stat-value">3</div>
+                                <div class="profile-stat-label">Interviews</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <button class="btn btn-primary" id="editProfileBtn">
+                    <i class="fas fa-edit"></i>
+                    Edit Profile
+                </button>
+            </div>
+            
+            <div class="profile-card">
+                <h3 class="section-title">Skills & Progress</h3>
+                <div class="progress-section">
+                    <div class="progress-header">
+                        <span>React.js</span>
+                        <span>85%</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 85%"></div>
+                    </div>
+                </div>
+                <div class="progress-section">
+                    <div class="progress-header">
+                        <span>JavaScript</span>
+                        <span>92%</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 92%"></div>
+                    </div>
+                </div>
+                <div class="progress-section">
+                    <div class="progress-header">
+                        <span>TypeScript</span>
+                        <span>70%</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 70%"></div>
+                    </div>
+                </div>
+                <div class="progress-section">
+                    <div class="progress-header">
+                        <span>UI/UX Design</span>
+                        <span>60%</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 60%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Quick Actions -->
+        <div class="quick-actions">
+            <a href="#" class="action-btn" id="aiJobFinderBtn">
+                <div class="action-icon action-1">
+                    <i class="fas fa-briefcase"></i>
+                </div>
+                <div class="action-label">AI Job Finder</div>
+            </a>
+            
+            <a href="#" class="action-btn" id="aiMentorBtn">
+                <div class="action-icon action-2">
+                    <i class="fas fa-user-friends"></i>
+                </div>
+                <div class="action-label">AI Mentor Match</div>
+                <span class="tag" style="position: absolute; top: 5px; right: 5px; background: var(--accent-1); color: white; font-size: 0.6rem;">AI Recommended</span>
+            </a>
+            
+            <a href="#" class="action-btn" id="careerRoadmapBtn">
+                <div class="action-icon action-3">
+                    <i class="fas fa-road"></i>
+                </div>
+                <div class="action-label">Interactive Roadmap</div>
+            </a>
+            
+            <a href="#" class="action-btn" id="accessibilityJobsBtn">
+                <div class="action-icon action-4">
+                    <i class="fas fa-universal-access"></i>
+                </div>
+                <div class="action-label">Accessibility Jobs</div>
+            </a>
+        </div>
+        
+        <!-- Stats Overview -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon stat-1">
+                    <i class="fas fa-briefcase"></i>
+                </div>
+                <div class="stat-value">12</div>
+                <div class="stat-label">Jobs Applied</div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon stat-2">
+                    <i class="fas fa-eye"></i>
+                </div>
+                <div class="stat-value">24</div>
+                <div class="stat-label">Profile Views</div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon stat-3">
+                    <i class="fas fa-user-check"></i>
+                </div>
+                <div class="stat-value">3</div>
+                <div class="stat-label">Interviews</div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon stat-4">
+                    <i class="fas fa-star"></i>
+                </div>
+                <div class="stat-value">65%</div>
+                <div class="stat-label">Roadmap Progress</div>
+            </div>
+        </div>
+        
+        <!-- Career Path Tracker -->
+        <div class="dashboard-section">
+            <div class="section-header">
+                <h2 class="section-title">AI Career Path Tracker</h2>
+                <div>
+                    <button class="btn btn-outline" id="aiSuggestBtn">
+                        <i class="fas fa-robot"></i> AI Suggest
+                    </button>
+                    <a href="#" class="view-all">View Details <i class="fas fa-arrow-right"></i></a>
+                </div>
+            </div>
+            
+            <div class="career-path">
+                <div class="path-milestone">
+                    <div class="milestone-icon">
+                        <i class="fas fa-code"></i>
+                    </div>
+                    <div class="milestone-info">
+                        <div class="milestone-title">Master Advanced React</div>
+                        <div class="milestone-description">Complete advanced patterns and performance optimization</div>
+                    </div>
+                    <div class="milestone-status">In Progress</div>
+                </div>
+                
+                <div class="path-milestone">
+                    <div class="milestone-icon">
+                        <i class="fas fa-mobile-alt"></i>
+                    </div>
+                    <div class="milestone-info">
+                        <div class="milestone-title">Learn React Native</div>
+                        <div class="milestone-description">Build cross-platform mobile applications</div>
+                    </div>
+                    <div class="milestone-status">Upcoming</div>
+                </div>
+                
+                <div class="path-milestone">
+                    <div class="milestone-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <div class="milestone-info">
+                        <div class="milestone-title">Team Leadership Skills</div>
+                        <div class="milestone-description">Develop management and mentoring capabilities</div>
+                    </div>
+                    <div class="milestone-status">Upcoming</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <div>
+                        <h3 class="card-title">Senior Frontend Developer Path</h3>
+                        <p class="card-subtitle">Estimated timeline: 12-18 months • You'll reach Senior Frontend Dev in ~4 months at current pace</p>
+                    </div>
+                    <div class="stat-value">65%</div>
+                </div>
+                
+                <div class="progress-bar" style="background: var(--dark-surface); height: 10px; border-radius: 5px; margin: 1rem 0;">
+                    <div style="background: var(--gradient-1); height: 100%; width: 65%; border-radius: 5px;"></div>
+                </div>
+                
+                <div class="card-tags">
+                    <span class="tag">React Advanced</span>
+                    <span class="tag">TypeScript</span>
+                    <span class="tag">Performance Optimization</span>
+                    <span class="tag">Leadership Skills</span>
+                </div>
+                
+                <div class="card-footer">
+                    <div>
+                        <span class="card-subtitle">Next milestone: Complete Advanced React course</span>
+                    </div>
+                    <div class="card-actions">
+                        <button class="btn btn-primary" id="updateProgressBtn">Update Progress</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- AI Job Recommendations -->
+        <div class="dashboard-section">
+            <div class="section-header">
+                <h2 class="section-title">AI Job Recommendations</h2>
+                <div>
+                    <button class="btn btn-outline" id="smartFiltersBtn">
+                        <i class="fas fa-filter"></i> Smart Filters
+                    </button>
+                    <a href="#" class="view-all">View All <i class="fas fa-arrow-right"></i></a>
+                </div>
+            </div>
+            
+            <div class="cards-grid">
+                <div class="card job-card">
+                    <div class="card-header">
+                        <div>
+                            <h3 class="card-title">Senior Frontend Developer</h3>
+                            <p class="card-subtitle">TechCorp Inc. • San Francisco, CA</p>
+                        </div>
+                        <div>
+                            <i class="far fa-bookmark" data-job-id="1"></i>
+                            <div class="tag" style="background: rgba(76, 175, 80, 0.1); color: var(--success); margin-top: 5px;">Match: 92%</div>
+                        </div>
+                    </div>
+                    
+                    <div class="card-tags">
+                        <span class="tag">React</span>
+                        <span class="tag">TypeScript</span>
+                        <span class="tag">Leadership</span>
+                    </div>
+                    
+                    <p class="card-subtitle">Lead frontend development for our flagship product with a focus on accessibility and performance.</p>
+                    
+                    <div class="card-footer">
+                        <div>
+                            <span class="card-subtitle">$120K - $150K • Full-time</span>
+                        </div>
+                        <div class="card-actions">
+                            <button class="btn btn-outline voice-apply" data-job-id="1">Apply with Voice</button>
+                            <button class="btn btn-primary apply-job" data-job-id="1">Apply</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card accessibility-card">
+                    <div class="card-header">
+                        <div>
+                            <h3 class="card-title">Accessibility Engineer</h3>
+                            <p class="card-subtitle">InclusiveTech • Remote</p>
+                        </div>
+                        <div>
+                            <i class="far fa-bookmark" data-job-id="2"></i>
+                            <div class="tag" style="background: rgba(76, 175, 80, 0.1); color: var(--success); margin-top: 5px;">Match: 88%</div>
+                        </div>
+                    </div>
+                    
+                    <div class="card-tags">
+                        <span class="tag accessibility-tag">Full Accommodations</span>
+                        <span class="tag accessibility-tag">Remote First</span>
+                        <span class="tag">React</span>
+                    </div>
+                    
+                    <p class="card-subtitle">Build accessible web experiences and lead our accessibility initiatives across all products.</p>
+                    
+                    <div class="card-footer">
+                        <div>
+                            <span class="card-subtitle">$110K - $140K • Full-time</span>
+                        </div>
+                        <div class="card-actions">
+                            <button class="btn btn-outline voice-apply" data-job-id="2">Apply with Voice</button>
+                            <button class="btn btn-accessibility apply-job" data-job-id="2">Apply</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card job-card">
+                    <div class="card-header">
+                        <div>
+                            <h3 class="card-title">Frontend Tech Lead</h3>
+                            <p class="card-subtitle">InnovateLabs • New York, NY</p>
+                        </div>
+                        <div>
+                            <i class="far fa-bookmark" data-job-id="3"></i>
+                            <div class="tag" style="background: rgba(76, 175, 80, 0.1); color: var(--success); margin-top: 5px;">Match: 85%</div>
+                        </div>
+                    </div>
+                    
+                    <div class="card-tags">
+                        <span class="tag">React</span>
+                        <span class="tag">Architecture</span>
+                        <span class="tag">Mentoring</span>
+                    </div>
+                    
+                    <p class="card-subtitle">Lead a team of frontend developers and drive technical excellence across our product suite.</p>
+                    
+                    <div class="card-footer">
+                        <div>
+                            <span class="card-subtitle">$140K - $180K • Full-time</span>
+                        </div>
+                        <div class="card-actions">
+                            <button class="btn btn-outline voice-apply" data-job-id="3">Apply with Voice</button>
+                            <button class="btn btn-primary apply-job" data-job-id="3">Apply</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Applied Jobs -->
+        <div class="dashboard-section">
+            <div class="section-header">
+                <h2 class="section-title">Applied Jobs</h2>
+                <div>
+                    <button class="btn btn-outline" id="interviewAssistantBtn">
+                        <i class="fas fa-robot"></i> AI Interview Assistant
+                    </button>
+                    <a href="#" class="view-all">View All <i class="fas fa-arrow-right"></i></a>
+                </div>
+            </div>
+            
+            <div class="cards-grid">
+                <div class="card job-card">
+                    <div class="card-header">
+                        <div>
+                            <h3 class="card-title">Frontend Developer</h3>
+                            <p class="card-subtitle">WebSolutions • Applied: 2 days ago</p>
+                        </div>
+                        <div class="tag" style="background: rgba(76, 175, 80, 0.1); color: var(--success);">Interview</div>
+                    </div>
+                    
+                    <div class="card-tags">
+                        <span class="tag">React</span>
+                        <span class="tag">JavaScript</span>
+                        <span class="tag">CSS</span>
+                    </div>
+                    
+                    <p class="card-subtitle">Your application is under review. Interview scheduled for next week.</p>
+                    
+                    <div class="card-footer">
+                        <div>
+                            <span class="card-subtitle">Status: Interview Stage</span>
+                        </div>
+                        <div class="card-actions">
+                            <button class="btn btn-outline">View Details</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card job-card">
+                    <div class="card-header">
+                        <div>
+                            <h3 class="card-title">UI Engineer</h3>
+                            <p class="card-subtitle">DesignFirst • Applied: 1 week ago</p>
+                        </div>
+                        <div class="tag" style="background: rgba(255, 152, 0, 0.1); color: var(--warning);">Under Review</div>
+                    </div>
+                    
+                    <div class="card-tags">
+                        <span class="tag">Figma</span>
+                        <span class="tag">UI/UX</span>
+                        <span class="tag">React</span>
+                    </div>
+                    
+                    <p class="card-subtitle">Application received and currently being reviewed by the hiring team.</p>
+                    
+                    <div class="card-footer">
+                        <div>
+                            <span class="card-subtitle">Status: Under Review</span>
+                        </div>
+                        <div class="card-actions">
+                            <button class="btn btn-outline">View Details</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- AI Mentor Connect -->
+        <div class="dashboard-section">
+            <div class="section-header">
+                <h2 class="section-title">AI Mentor Connect</h2>
+                <a href="#" class="view-all">View All <i class="fas fa-arrow-right"></i></a>
+            </div>
+            
+            <div class="cards-grid">
+                <div class="card mentor-card">
+                    <div class="card-header">
+                        <div>
+                            <h3 class="card-title">Sarah Johnson</h3>
+                            <p class="card-subtitle">Senior Frontend Lead at TechCorp</p>
+                        </div>
+                        <div class="tag" style="background: rgba(139, 127, 255, 0.2); color: var(--primary);">Best Match</div>
+                    </div>
+                    
+                    <div class="card-tags">
+                        <span class="tag">React</span>
+                        <span class="tag">Career Growth</span>
+                        <span class="tag">Leadership</span>
+                    </div>
+                    
+                    <p class="card-subtitle">Specialized in helping developers transition to senior roles and leadership positions.</p>
+                    
+                    <div class="card-footer">
+                        <div>
+                            <span class="card-subtitle">5+ years experience</span>
+                        </div>
+                        <div class="card-actions">
+                            <button class="btn btn-outline" data-mentor-id="1">Message</button>
+                            <button class="btn btn-primary" data-mentor-id="1">Connect</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card mentor-card">
+                    <div class="card-header">
+                        <div>
+                            <h3 class="card-title">Alex Chen</h3>
+                            <p class="card-subtitle">Accessibility Specialist at InclusiveTech</p>
+                        </div>
+                        <div class="tag" style="background: rgba(79, 195, 247, 0.2); color: var(--accessibility);">Accessibility</div>
+                    </div>
+                    
+                    <div class="card-tags">
+                        <span class="tag">WCAG</span>
+                        <span class="tag">React A11y</span>
+                        <span class="tag">Inclusive Design</span>
+                    </div>
+                    
+                    <p class="card-subtitle">Expert in web accessibility and creating inclusive digital experiences for all users.</p>
+                    
+                    <div class="card-footer">
+                        <div>
+                            <span class="card-subtitle">7+ years experience</span>
+                        </div>
+                        <div class="card-actions">
+                            <button class="btn btn-outline" data-mentor-id="2">Message</button>
+                            <button class="btn btn-primary" data-mentor-id="2">Connect</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Company Recommendations -->
+        <div class="dashboard-section">
+            <div class="section-header">
+                <h2 class="section-title">Companies That Value Accessibility</h2>
+                <a href="#" class="view-all">View All <i class="fas fa-arrow-right"></i></a>
+            </div>
+            
+            <div class="cards-grid">
+                <div class="card company-card">
+                    <div class="card-header">
+                        <div>
+                            <h3 class="card-title">InclusiveTech</h3>
+                            <p class="card-subtitle">San Francisco, CA • 250+ employees</p>
+                        </div>
+                        <i class="fas fa-heart" style="color: var(--accent-1);"></i>
+                    </div>
+                    
+                    <div class="card-tags">
+                        <span class="tag accessibility-tag">Accessibility First</span>
+                        <span class="tag accessibility-tag">Remote Friendly</span>
+                        <span class="tag">React</span>
+                    </div>
+                    
+                    <p class="card-subtitle">Building tools that make the web accessible to everyone. Strong DEI initiatives and inclusive culture.</p>
+                    
+                    <div class="card-footer">
+                        <div>
+                            <span class="card-subtitle">15 open positions</span>
+                        </div>
+                        <div class="card-actions">
+                            <button class="btn btn-outline">Follow</button>
+                            <button class="btn btn-primary">View Jobs</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card company-card">
+                    <div class="card-header">
+                        <div>
+                            <h3 class="card-title">TechForAll</h3>
+                            <p class="card-subtitle">Remote • 150+ employees</p>
+                        </div>
+                        <i class="fas fa-star" style="color: var(--warning);"></i>
+                    </div>
+                    
+                    <div class="card-tags">
+                        <span class="tag accessibility-tag">4-Day Work Week</span>
+                        <span class="tag accessibility-tag">Flexible Hours</span>
+                        <span class="tag">TypeScript</span>
+                    </div>
+                    
+                    <p class="card-subtitle">Focused on creating technology solutions that serve diverse communities and promote inclusion.</p>
+                    
+                    <div class="card-footer">
+                        <div>
+                            <span class="card-subtitle">8 open positions</span>
+                        </div>
+                        <div class="card-actions">
+                            <button class="btn btn-outline">Follow</button>
+                            <button class="btn btn-primary">View Jobs</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ====================
+        // DOM Elements
+        // ====================
+        const hamburgerMenu = document.getElementById('hamburgerMenu');
+        const sidebar = document.querySelector('.sidebar');
+        const logo = document.querySelector('.logo');
+        const themeToggle = document.getElementById('themeToggle');
+        const themeIcon = themeToggle.querySelector('i');
+        const accessibilityToggle = document.getElementById('accessibilityToggle');
+        const accessibilityPanel = document.getElementById('accessibilityPanel');
+        const quickAdd = document.getElementById('quickAdd');
+        const quickAddMenu = document.getElementById('quickAddMenu');
+        const profileMenu = document.getElementById('profileMenu');
+        const profileDropdown = document.getElementById('profileDropdown');
+        const notificationsBtn = document.getElementById('notificationsBtn');
+        const notificationPanel = document.getElementById('notificationPanel');
+        const aiAssistant = document.getElementById('aiAssistant');
+        const aiPanel = document.getElementById('aiPanel');
+        const closeAiPanel = document.getElementById('closeAiPanel');
+        const aiJobFinderBtn = document.getElementById('aiJobFinderBtn');
+        const aiJobFinder = document.getElementById('aiJobFinder');
+        const closeAiJobFinder = document.getElementById('closeAiJobFinder');
+        const sendAiMessage = document.getElementById('sendAiMessage');
+        const aiChatInput = document.getElementById('aiChatInput');
+        const aiChatMessages = document.getElementById('aiChatMessages');
+        const voiceAssistant = document.getElementById('voiceAssistant');
+        const searchInput = document.getElementById('searchInput');
+        const searchButton = document.getElementById('searchButton');
+        const toast = document.getElementById('toast');
+        const toastMessage = document.getElementById('toastMessage');
+        
+        // AI Summary elements
+        const aiCareerSummary = document.getElementById('aiCareerSummary');
+        const aiSummaryCut = document.getElementById('aiSummaryCut');
+        const summaryRestore = document.getElementById('summaryRestore');
+        const restoreSummaryBtn = document.getElementById('restoreSummaryBtn');
+        
+        // Daily Motivation elements
+        const motivationCard = document.getElementById('motivationCard');
+        const motivationDismiss = document.getElementById('motivationDismiss');
+        const motivationShare = document.getElementById('motivationShare');
+        const motivationRestore = document.getElementById('motivationRestore');
+        const restoreMotivationBtn = document.getElementById('restoreMotivationBtn');
+        
+        // Accessibility elements
+        const voiceCommandsToggle = document.getElementById('voiceCommandsToggle');
+        const textToSpeechToggle = document.getElementById('textToSpeechToggle');
+        const highContrastToggle = document.getElementById('highContrastToggle');
+        const dyslexiaFontToggle = document.getElementById('dyslexiaFontToggle');
+        const fontSizeIncrease = document.getElementById('fontSizeIncrease');
+        const fontSizeDecrease = document.getElementById('fontSizeDecrease');
+        
+        // Other interactive elements
+        const editProfileBtn = document.getElementById('editProfileBtn');
+        const updateProgressBtn = document.getElementById('updateProgressBtn');
+        const aiSuggestBtn = document.getElementById('aiSuggestBtn');
+        const smartFiltersBtn = document.getElementById('smartFiltersBtn');
+        const interviewAssistantBtn = document.getElementById('interviewAssistantBtn');
+        
+        // ====================
+        // State Management
+        // ====================
+        const state = {
+            isSidebarCollapsed: false,
+            currentTheme: 'dark',
+            accessibility: {
+                voiceCommands: false,
+                textToSpeech: false,
+                highContrast: false,
+                dyslexiaFont: false,
+                fontSize: 'normal'
+            },
+            notifications: 5,
+            bookmarkedJobs: new Set(),
+            appliedJobs: new Set(),
+            connectedMentors: new Set(),
+            aiSummaryDismissed: false,
+            motivationDismissed: false,
+            dailyMotivations: [
+                "The only way to do great work is to love what you do. If you haven't found it yet, keep looking. Don't settle.",
+                "Your career is a journey, not a destination. Every step forward, no matter how small, is progress worth celebrating.",
+                "Success doesn't come from what you do occasionally, it comes from what you do consistently. Keep showing up!",
+                "The expert in anything was once a beginner. Your consistent efforts today are building your expertise for tomorrow.",
+                "Don't watch the clock; do what it does. Keep going. Your persistence will open doors you never imagined.",
+                "The future belongs to those who believe in the beauty of their dreams. Keep believing, keep working, keep growing.",
+                "You don't have to be great to start, but you have to start to be great. Every application sent is a step forward.",
+                "Your value doesn't decrease based on someone's inability to see your worth. The right opportunity will recognize you."
+            ],
+            currentMotivationIndex: 0
+        };
+
+        // ====================
+        // Utility Functions
+        // ====================
+        function showToast(message, type = 'success') {
+            toastMessage.textContent = message;
+            const icon = toast.querySelector('i');
+            icon.className = type === 'success' ? 'fas fa-check-circle' : 
+                            type === 'error' ? 'fas fa-exclamation-circle' : 
+                            'fas fa-info-circle';
+            icon.style.color = type === 'success' ? 'var(--success)' : 
+                              type === 'error' ? 'var(--error)' : 
+                              'var(--warning)';
+            
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        function speakText(text) {
+            if ('speechSynthesis' in window && state.accessibility.textToSpeech) {
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.rate = 0.9;
+                utterance.pitch = 1;
+                utterance.volume = 1;
+                window.speechSynthesis.speak(utterance);
+            }
+        }
+
+        function getRandomMotivation() {
+            const index = Math.floor(Math.random() * state.dailyMotivations.length);
+            state.currentMotivationIndex = index;
+            return state.dailyMotivations[index];
+        }
+
+        // ====================
+        // Sidebar Functionality
+        // ====================
+        function toggleSidebar() {
+            state.isSidebarCollapsed = !state.isSidebarCollapsed;
+            sidebar.classList.toggle('collapsed');
+            
+            const icon = hamburgerMenu.querySelector('i');
+            if (state.isSidebarCollapsed) {
+                icon.className = 'fas fa-ellipsis-h';
+                logo.style.fontSize = '1rem';
+                logo.style.justifyContent = 'center';
+                logo.style.padding = '0';
+                logo.innerHTML = 'NM';
+            } else {
+                icon.className = 'fas fa-bars';
+                logo.style.fontSize = '1.4rem';
+                logo.style.justifyContent = 'flex-start';
+                logo.style.padding = 'var(--spacing-sm)';
+                logo.innerHTML = '<span>NavMenta</span>';
+            }
+            
+            // Save state to localStorage
+            localStorage.setItem('sidebarCollapsed', state.isSidebarCollapsed);
+        }
+
+        // ====================
+        // Theme Management
+        // ====================
+        function toggleTheme() {
+            state.currentTheme = state.currentTheme === 'dark' ? 'light' : 'dark';
+            document.body.setAttribute('data-theme', state.currentTheme);
+            
+            if (state.currentTheme === 'light') {
+                themeIcon.className = 'fas fa-sun';
+            } else {
+                themeIcon.className = 'fas fa-moon';
+            }
+            
+            localStorage.setItem('theme', state.currentTheme);
+            showToast(`Theme changed to ${state.currentTheme} mode`);
+        }
+
+        // ====================
+        // AI Summary Functionality
+        // ====================
+        function dismissAISummary() {
+            state.aiSummaryDismissed = true;
+            aiCareerSummary.classList.add('dismissed');
+            summaryRestore.style.display = 'block';
+            
+            localStorage.setItem('aiSummaryDismissed', 'true');
+            
+            showToast("Daily summary dismissed. Click 'Restore' to show it again.", 'info');
+            
+            if (state.accessibility.textToSpeech) {
+                speakText("Daily summary dismissed.");
+            }
+        }
+
+        function restoreAISummary() {
+            state.aiSummaryDismissed = false;
+            aiCareerSummary.classList.remove('dismissed');
+            summaryRestore.style.display = 'none';
+            
+            localStorage.removeItem('aiSummaryDismissed');
+            
+            showToast("Daily summary restored!");
+            
+            if (state.accessibility.textToSpeech) {
+                speakText("Daily summary restored.");
+            }
+        }
+
+        // ====================
+        // Daily Motivation Functionality
+        // ====================
+        function dismissMotivation() {
+            state.motivationDismissed = true;
+            motivationCard.classList.add('dismissed');
+            motivationRestore.style.display = 'block';
+            
+            localStorage.setItem('motivationDismissed', 'true');
+            
+            showToast("Daily motivation dismissed. Click 'Restore' to show it again.", 'info');
+            
+            if (state.accessibility.textToSpeech) {
+                speakText("Daily motivation dismissed.");
+            }
+        }
+
+        function restoreMotivation() {
+            state.motivationDismissed = false;
+            motivationCard.classList.remove('dismissed');
+            motivationRestore.style.display = 'none';
+            
+            localStorage.removeItem('motivationDismissed');
+            
+            // Update with new motivation
+            const motivationText = motivationCard.querySelector('.motivation-text');
+            motivationText.textContent = `"${getRandomMotivation()}"`;
+            
+            showToast("Daily motivation restored!");
+            
+            if (state.accessibility.textToSpeech) {
+                speakText("Daily motivation restored.");
+            }
+        }
+
+        function shareMotivation() {
+            const motivationText = motivationCard.querySelector('.motivation-text').textContent;
+            const shareText = `Check out today's motivation from NavMenta: ${motivationText}`;
+            
+            if (navigator.share) {
+                navigator.share({
+                    title: 'Daily Motivation',
+                    text: shareText,
+                    url: window.location.href
+                });
+            } else {
+                // Fallback to clipboard
+                navigator.clipboard.writeText(shareText)
+                    .then(() => showToast("Motivation copied to clipboard!"))
+                    .catch(() => showToast("Failed to copy motivation", 'error'));
+            }
+        }
+
+        // ====================
+        // Accessibility Features
+        // ====================
+        function toggleAccessibilityPanel() {
+            accessibilityPanel.classList.toggle('show');
+        }
+
+        function toggleVoiceCommands() {
+            state.accessibility.voiceCommands = !state.accessibility.voiceCommands;
+            voiceCommandsToggle.classList.toggle('active', state.accessibility.voiceCommands);
+            showToast(`Voice commands ${state.accessibility.voiceCommands ? 'enabled' : 'disabled'}`);
+            
+            if (state.accessibility.voiceCommands) {
+                initializeVoiceRecognition();
+            }
+        }
+
+        function toggleTextToSpeech() {
+            state.accessibility.textToSpeech = !state.accessibility.textToSpeech;
+            textToSpeechToggle.classList.toggle('active', state.accessibility.textToSpeech);
+            showToast(`Text-to-speech ${state.accessibility.textToSpeech ? 'enabled' : 'disabled'}`);
+        }
+
+        function toggleHighContrast() {
+            state.accessibility.highContrast = !state.accessibility.highContrast;
+            highContrastToggle.classList.toggle('active', state.accessibility.highContrast);
+            
+            const accessibilityMode = state.accessibility.highContrast ? 'high-contrast' : 'normal';
+            document.body.setAttribute('data-accessibility', accessibilityMode);
+            
+            showToast(`High contrast mode ${state.accessibility.highContrast ? 'enabled' : 'disabled'}`);
+        }
+
+        function toggleDyslexiaFont() {
+            state.accessibility.dyslexiaFont = !state.accessibility.dyslexiaFont;
+            dyslexiaFontToggle.classList.toggle('active', state.accessibility.dyslexiaFont);
+            
+            const fontMode = state.accessibility.dyslexiaFont ? 'dyslexia' : 'normal';
+            document.body.setAttribute('data-font', fontMode);
+            
+            showToast(`Dyslexia-friendly font ${state.accessibility.dyslexiaFont ? 'enabled' : 'disabled'}`);
+        }
+
+        function changeFontSize(increase = true) {
+            const sizes = ['normal', 'large', 'x-large'];
+            let currentIndex = sizes.indexOf(state.accessibility.fontSize);
+            
+            if (increase && currentIndex < sizes.length - 1) {
+                currentIndex++;
+            } else if (!increase && currentIndex > 0) {
+                currentIndex--;
+            }
+            
+            state.accessibility.fontSize = sizes[currentIndex];
+            document.body.setAttribute('data-font-size', state.accessibility.fontSize);
+            
+            fontSizeIncrease.classList.toggle('active', currentIndex > 0);
+            fontSizeDecrease.classList.toggle('active', currentIndex < sizes.length - 1);
+            
+            showToast(`Font size set to ${state.accessibility.fontSize}`);
+        }
+
+        // ====================
+        // Dropdown Management
+        // ====================
+        function toggleDropdown(dropdown, closeOthers = true) {
+            const isShowing = dropdown.classList.contains('show');
+            
+            if (closeOthers) {
+                document.querySelectorAll('.show').forEach(el => {
+                    if (el !== dropdown) el.classList.remove('show');
+                });
+            }
+            
+            dropdown.classList.toggle('show', !isShowing);
+        }
+
+        // ====================
+        // AI Assistant
+        // ====================
+        function toggleAIPanel() {
+            toggleDropdown(aiPanel);
+        }
+
+        function toggleAIJobFinder() {
+            toggleDropdown(aiJobFinder);
+            if (aiJobFinder.classList.contains('show')) {
+                aiChatInput.focus();
+            }
+        }
+
+        function sendAIMessage() {
+            const message = aiChatInput.value.trim();
+            if (!message) return;
+            
+            // Add user message
+            const userMessage = document.createElement('div');
+            userMessage.className = 'ai-message';
+            userMessage.innerHTML = `<strong>You:</strong> ${message}`;
+            aiChatMessages.appendChild(userMessage);
+            
+            // Clear input
+            aiChatInput.value = '';
+            
+            // Show loading indicator
+            const loading = document.createElement('div');
+            loading.className = 'ai-message';
+            loading.innerHTML = '<strong>AI:</strong> Thinking...';
+            aiChatMessages.appendChild(loading);
+            
+            // Simulate AI response
+            setTimeout(() => {
+                loading.remove();
+                
+                const responses = [
+                    `I found 5 jobs matching "${message}". Here are the top 3 recommendations based on your profile...`,
+                    `Based on your search for "${message}", I suggest updating your resume to highlight relevant skills.`,
+                    `I can help you find jobs related to "${message}". Would you like me to set up job alerts for this criteria?`,
+                    `For "${message}" positions, I recommend connecting with mentors who specialize in this area.`
+                ];
+                
+                const randomResponse = responses[Math.floor(Math.random() * responses.length)];
+                
+                const aiResponse = document.createElement('div');
+                aiResponse.className = 'ai-message';
+                aiResponse.innerHTML = `<strong>AI:</strong> ${randomResponse}`;
+                aiChatMessages.appendChild(aiResponse);
+                
+                if (state.accessibility.textToSpeech) {
+                    speakText(randomResponse);
+                }
+                
+                aiChatMessages.scrollTop = aiChatMessages.scrollHeight;
+            }, 1500);
+        }
+
+        // ====================
+        // Voice Recognition
+        // ====================
+        let recognition = null;
+        
+        function initializeVoiceRecognition() {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            
+            if (SpeechRecognition) {
+                recognition = new SpeechRecognition();
+                recognition.continuous = false;
+                recognition.interimResults = false;
+                recognition.lang = 'en-US';
+                
+                recognition.onstart = function() {
+                    voiceAssistant.classList.add('listening');
+                    voiceAssistant.innerHTML = '<i class="fas fa-circle"></i>';
+                    showToast("Listening... Speak now");
+                };
+                
+                recognition.onresult = function(event) {
+                    const transcript = event.results[0][0].transcript;
+                    handleVoiceCommand(transcript);
+                };
+                
+                recognition.onend = function() {
+                    voiceAssistant.classList.remove('listening');
+                    voiceAssistant.innerHTML = '<i class="fas fa-microphone"></i>';
+                };
+                
+                recognition.onerror = function(event) {
+                    console.error('Speech recognition error', event.error);
+                    voiceAssistant.classList.remove('listening');
+                    voiceAssistant.innerHTML = '<i class="fas fa-microphone"></i>';
+                    showToast("Voice recognition failed. Please try again.", 'error');
+                };
+            } else {
+                showToast("Speech recognition not supported in this browser", 'error');
+            }
+        }
+
+        function handleVoiceCommand(command) {
+            command = command.toLowerCase();
+            showToast(`Heard: "${command}"`);
+            
+            if (state.accessibility.textToSpeech) {
+                speakText(`I heard: ${command}`);
+            }
+            
+            if (command.includes('search') || command.includes('find')) {
+                const searchTerm = command.replace(/search|find/g, '').trim();
+                searchInput.value = searchTerm;
+                performSearch(searchTerm);
+            } else if (command.includes('toggle sidebar') || command.includes('open sidebar')) {
+                toggleSidebar();
+            } else if (command.includes('dark mode') || command.includes('light mode')) {
+                toggleTheme();
+            } else if (command.includes('notifications')) {
+                toggleDropdown(notificationPanel);
+            } else if (command.includes('ai assistant')) {
+                toggleAIPanel();
+            } else if (command.includes('apply to job')) {
+                const jobNumber = command.match(/\d+/);
+                if (jobNumber) {
+                    applyToJob(jobNumber[0]);
+                }
+            } else if (command.includes('bookmark job')) {
+                const jobNumber = command.match(/\d+/);
+                if (jobNumber) {
+                    toggleBookmark(jobNumber[0]);
+                }
+            } else if (command.includes('dismiss summary') || command.includes('remove summary')) {
+                dismissAISummary();
+            } else if (command.includes('restore summary')) {
+                restoreAISummary();
+            } else if (command.includes('dismiss motivation')) {
+                dismissMotivation();
+            } else if (command.includes('restore motivation')) {
+                restoreMotivation();
+            } else if (command.includes('share motivation')) {
+                shareMotivation();
+            } else {
+                showToast("Command not recognized. Try saying 'search jobs', 'toggle sidebar', or 'apply to job 1'");
+            }
+        }
+
+        // ====================
+        // Job Application
+        // ====================
+        function applyToJob(jobId) {
+            if (state.appliedJobs.has(jobId)) {
+                showToast(`You've already applied to job ${jobId}`, 'error');
+                return;
+            }
+            
+            state.appliedJobs.add(jobId);
+            showToast(`Successfully applied to job ${jobId}!`);
+            
+            const applyBtn = document.querySelector(`.apply-job[data-job-id="${jobId}"]`);
+            if (applyBtn) {
+                applyBtn.textContent = 'Applied';
+                applyBtn.disabled = true;
+                applyBtn.classList.remove('btn-primary', 'btn-accessibility');
+                applyBtn.classList.add('btn-outline');
+            }
+        }
+
+        function toggleBookmark(jobId) {
+            const bookmarkIcon = document.querySelector(`.fa-bookmark[data-job-id="${jobId}"]`);
+            
+            if (state.bookmarkedJobs.has(jobId)) {
+                state.bookmarkedJobs.delete(jobId);
+                bookmarkIcon.classList.remove('fas');
+                bookmarkIcon.classList.add('far');
+                showToast(`Removed job ${jobId} from bookmarks`);
+            } else {
+                state.bookmarkedJobs.add(jobId);
+                bookmarkIcon.classList.remove('far');
+                bookmarkIcon.classList.add('fas');
+                bookmarkIcon.style.color = 'var(--primary)';
+                showToast(`Bookmarked job ${jobId}`);
+            }
+        }
+
+        // ====================
+        // Search Functionality
+        // ====================
+        function performSearch(query) {
+            if (!query.trim()) return;
+            
+            showToast(`Searching for: ${query}`);
+            
+            setTimeout(() => {
+                showToast(`Found 12 results for "${query}"`);
+                
+                document.querySelectorAll('.job-card').forEach(card => {
+                    const cardText = card.textContent.toLowerCase();
+                    card.style.display = cardText.includes(query.toLowerCase()) ? 'block' : 'none';
+                });
+            }, 1000);
+        }
+
+        // ====================
+        // Event Listeners
+        // ====================
+        // Sidebar
+        hamburgerMenu.addEventListener('click', toggleSidebar);
+        
+        // Theme
+        themeToggle.addEventListener('click', toggleTheme);
+        
+        // AI Summary
+        aiSummaryCut.addEventListener('click', dismissAISummary);
+        restoreSummaryBtn.addEventListener('click', restoreAISummary);
+        
+        // Daily Motivation
+        motivationDismiss.addEventListener('click', dismissMotivation);
+        motivationShare.addEventListener('click', shareMotivation);
+        restoreMotivationBtn.addEventListener('click', restoreMotivation);
+        
+        // Accessibility
+        accessibilityToggle.addEventListener('click', toggleAccessibilityPanel);
+        voiceCommandsToggle.addEventListener('click', toggleVoiceCommands);
+        textToSpeechToggle.addEventListener('click', toggleTextToSpeech);
+        highContrastToggle.addEventListener('click', toggleHighContrast);
+        dyslexiaFontToggle.addEventListener('click', toggleDyslexiaFont);
+        fontSizeIncrease.addEventListener('click', () => changeFontSize(true));
+        fontSizeDecrease.addEventListener('click', () => changeFontSize(false));
+        
+        // Dropdowns
+        quickAdd.addEventListener('click', () => toggleDropdown(quickAddMenu));
+        profileMenu.addEventListener('click', () => toggleDropdown(profileDropdown));
+        notificationsBtn.addEventListener('click', () => toggleDropdown(notificationPanel));
+        
+        // AI Features
+        aiAssistant.addEventListener('click', toggleAIPanel);
+        closeAiPanel.addEventListener('click', () => toggleDropdown(aiPanel));
+        aiJobFinderBtn.addEventListener('click', toggleAIJobFinder);
+        closeAiJobFinder.addEventListener('click', () => toggleDropdown(aiJobFinder));
+        sendAiMessage.addEventListener('click', sendAIMessage);
+        aiChatInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') sendAIMessage();
+        });
+        
+        // Voice Assistant
+        voiceAssistant.addEventListener('click', () => {
+            if (recognition && state.accessibility.voiceCommands) {
+                recognition.start();
+            } else {
+                showToast("Please enable voice commands first", 'error');
+            }
+        });
+        
+        // Search
+        searchButton.addEventListener('click', () => performSearch(searchInput.value));
+        searchInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') performSearch(searchInput.value);
+        });
+        
+        // Bookmarks
+        document.querySelectorAll('.fa-bookmark').forEach(icon => {
+            icon.addEventListener('click', function() {
+                const jobId = this.getAttribute('data-job-id');
+                toggleBookmark(jobId);
+            });
+        });
+        
+        // Job Applications
+        document.querySelectorAll('.apply-job').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const jobId = this.getAttribute('data-job-id');
+                applyToJob(jobId);
+            });
+        });
+        
+        // Voice Apply
+        document.querySelectorAll('.voice-apply').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const jobId = this.getAttribute('data-job-id');
+                if (recognition && state.accessibility.voiceCommands) {
+                    showToast("Speak your application details");
+                    recognition.start();
+                    recognition.currentJobId = jobId;
+                } else {
+                    showToast("Enable voice commands to use voice apply", 'error');
+                }
+            });
+        });
+        
+        // Edit Profile
+        editProfileBtn.addEventListener('click', () => {
+            showToast("Opening profile editor...");
+        });
+        
+        // Update Progress
+        updateProgressBtn.addEventListener('click', () => {
+            showToast("Progress updated successfully!");
+        });
+        
+        // AI Suggest
+        aiSuggestBtn.addEventListener('click', () => {
+            const suggestions = [
+                "Based on your progress, I recommend focusing on React Native next to expand your mobile development skills.",
+                "Your TypeScript skills are at 70%. Consider completing the Advanced TypeScript course to reach 85%.",
+                "I've identified 3 new mentorship opportunities that match your career goals. Would you like to see them?",
+                "Your application-to-interview conversion rate is 25%. Let's work on improving your resume."
+            ];
+            
+            const randomSuggestion = suggestions[Math.floor(Math.random() * suggestions.length)];
+            
+            toggleAIPanel();
+            const suggestionElement = document.createElement('div');
+            suggestionElement.className = 'ai-suggestion';
+            suggestionElement.innerHTML = `<div>${randomSuggestion}</div>`;
+            document.getElementById('aiSuggestionsList').prepend(suggestionElement);
+            
+            if (state.accessibility.textToSpeech) {
+                speakText(randomSuggestion);
+            }
+        });
+        
+        // Smart Filters
+        smartFiltersBtn.addEventListener('click', () => {
+            const filters = [
+                "Remote + Leadership roles under ReactJS",
+                "Jobs with >90% match score",
+                "Accessibility-focused companies",
+                "High growth startups",
+                "Flexible work hours",
+                "4-day work week"
+            ];
+            
+            showToast(`Available AI Filters:\n${filters.map(f => `• ${f}`).join('\n')}`);
+        });
+        
+        // Interview Assistant
+        interviewAssistantBtn.addEventListener('click', () => {
+            showToast("Opening AI Interview Assistant...");
+        });
+
+        // ====================
+        // Initialize from localStorage
+        // ====================
+        function initializeFromStorage() {
+            // Sidebar state
+            const sidebarCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
+            if (sidebarCollapsed) {
+                toggleSidebar();
+            }
+            
+            // Theme
+            const savedTheme = localStorage.getItem('theme') || 'dark';
+            if (savedTheme !== state.currentTheme) {
+                toggleTheme();
+            }
+            
+            // AI Summary state
+            const summaryDismissed = localStorage.getItem('aiSummaryDismissed') === 'true';
+            if (summaryDismissed) {
+                state.aiSummaryDismissed = true;
+                aiCareerSummary.classList.add('dismissed');
+                summaryRestore.style.display = 'block';
+            }
+            
+            // Motivation state
+            const motivationDismissed = localStorage.getItem('motivationDismissed') === 'true';
+            if (motivationDismissed) {
+                state.motivationDismissed = true;
+                motivationCard.classList.add('dismissed');
+                motivationRestore.style.display = 'block';
+            } else {
+                // Set random motivation for today
+                const motivationText = motivationCard.querySelector('.motivation-text');
+                motivationText.textContent = `"${getRandomMotivation()}"`;
+            }
+            
+            // Initialize voice recognition if supported
+            if ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window) {
+                initializeVoiceRecognition();
+            }
+        }
+
+        // ====================
+        // Close dropdowns when clicking outside
+        // ====================
+        document.addEventListener('click', (event) => {
+            const dropdowns = [
+                { element: profileDropdown, toggle: profileMenu },
+                { element: notificationPanel, toggle: notificationsBtn },
+                { element: quickAddMenu, toggle: quickAdd },
+                { element: aiPanel, toggle: aiAssistant },
+                { element: accessibilityPanel, toggle: accessibilityToggle },
+                { element: aiJobFinder, toggle: aiJobFinderBtn }
+            ];
+            
+            dropdowns.forEach(({ element, toggle }) => {
+                if (!element.contains(event.target) && !toggle.contains(event.target)) {
+                    element.classList.remove('show');
+                }
+            });
+        });
+
+        // ====================
+        // Keyboard Navigation
+        // ====================
+        document.addEventListener('keydown', (event) => {
+            // Alt + S to focus search
+            if (event.altKey && event.key === 's') {
+                event.preventDefault();
+                searchInput.focus();
+            }
+            
+            // Alt + T to toggle theme
+            if (event.altKey && event.key === 't') {
+                event.preventDefault();
+                toggleTheme();
+            }
+            
+            // Alt + H to toggle sidebar
+            if (event.altKey && event.key === 'h') {
+                event.preventDefault();
+                toggleSidebar();
+            }
+            
+            // Alt + A to open AI assistant
+            if (event.altKey && event.key === 'a') {
+                event.preventDefault();
+                toggleAIPanel();
+            }
+            
+            // Alt + C to toggle accessibility
+            if (event.altKey && event.key === 'c') {
+                event.preventDefault();
+                toggleAccessibilityPanel();
+            }
+            
+            // Ctrl/Cmd + D to dismiss AI summary
+            if ((event.ctrlKey || event.metaKey) && event.key === 'd') {
+                event.preventDefault();
+                dismissAISummary();
+            }
+            
+            // Ctrl/Cmd + Shift + R to restore AI summary
+            if ((event.ctrlKey || event.metaKey) && event.shiftKey && event.key === 'r') {
+                event.preventDefault();
+                restoreAISummary();
+            }
+            
+            // Ctrl/Cmd + M to dismiss motivation
+            if ((event.ctrlKey || event.metaKey) && event.key === 'm') {
+                event.preventDefault();
+                dismissMotivation();
+            }
+            
+            // Ctrl/Cmd + Shift + M to restore motivation
+            if ((event.ctrlKey || event.metaKey) && event.shiftKey && event.key === 'm') {
+                event.preventDefault();
+                restoreMotivation();
+            }
+            
+            // Escape to close all dropdowns
+            if (event.key === 'Escape') {
+                document.querySelectorAll('.show').forEach(el => el.classList.remove('show'));
+            }
+        });
+
+        // ====================
+        // Initialize
+        // ====================
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeFromStorage();
+            showToast("Welcome to NavMenta! Your AI-powered job search assistant is ready.", 'success');
+        });
+
+        // ====================
+        // Animate elements on scroll
+        // ====================
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.animation = 'fadeIn 0.8s ease-out forwards';
+                }
+            });
+        }, { threshold: 0.1 });
+
+        document.querySelectorAll('.dashboard-section').forEach(section => {
+            observer.observe(section);
+        });
+    </script>
+</body>
+</html>

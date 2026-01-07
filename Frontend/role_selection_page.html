@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NavMenta - Choose Your Role</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #8B7FFF;
+            --primary-light: #A396FF;
+            --dark-bg: #0A0E27;
+            --dark-surface: #151B3C;
+            --text-primary: #FFFFFF;
+            --text-secondary: #B8BED9;
+            --gradient-1: linear-gradient(135deg, #8B7FFF 0%, #FF7FA3 100%);
+            --shadow-glow: 0 0 40px rgba(139, 127, 255, 0.3);
+            --shadow-card: 0 10px 40px rgba(0, 0, 0, 0.3);
+            --glass-bg: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
+        
+        [data-theme="light"] {
+            --primary: #6A5BCF;
+            --primary-light: #8B7FFF;
+            --dark-bg: #F5F7FF;
+            --dark-surface: #FFFFFF;
+            --text-primary: #1A1A2E;
+            --text-secondary: #4A4A6A;
+            --gradient-1: linear-gradient(135deg, #6A5BCF 0%, #FF4D7F 100%);
+            --shadow-glow: 0 0 30px rgba(106, 91, 207, 0.2);
+            --shadow-card: 0 10px 30px rgba(0, 0, 0, 0.08);
+            --glass-bg: rgba(255, 255, 255, 0.7);
+            --glass-border: rgba(106, 91, 207, 0.1);
+        }
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: var(--dark-bg);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            position: relative;
+            overflow: hidden;
+            transition: background-color 0.5s ease, color 0.5s ease;
+        }
+
+        /* Background Bubble Effect */
+        .bubbles {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .bubble {
+            position: absolute;
+            bottom: -100px;
+            background: var(--primary);
+            border-radius: 50%;
+            opacity: 0.1;
+            animation: rise 15s infinite ease-in;
+        }
+
+        .bubble:nth-child(1) {
+            width: 40px;
+            height: 40px;
+            left: 10%;
+            animation-duration: 15s;
+            animation-delay: 0s;
+        }
+
+        .bubble:nth-child(2) {
+            width: 20px;
+            height: 20px;
+            left: 20%;
+            animation-duration: 12s;
+            animation-delay: 1s;
+        }
+
+        .bubble:nth-child(3) {
+            width: 50px;
+            height: 50px;
+            left: 35%;
+            animation-duration: 18s;
+            animation-delay: 2s;
+        }
+
+        .bubble:nth-child(4) {
+            width: 80px;
+            height: 80px;
+            left: 50%;
+            animation-duration: 22s;
+            animation-delay: 0s;
+        }
+
+        .bubble:nth-child(5) {
+            width: 35px;
+            height: 35px;
+            left: 65%;
+            animation-duration: 16s;
+            animation-delay: 1s;
+        }
+
+        .bubble:nth-child(6) {
+            width: 45px;
+            height: 45px;
+            left: 75%;
+            animation-duration: 19s;
+            animation-delay: 3s;
+        }
+
+        .bubble:nth-child(7) {
+            width: 25px;
+            height: 25px;
+            left: 85%;
+            animation-duration: 14s;
+            animation-delay: 2s;
+        }
+
+        .bubble:nth-child(8) {
+            width: 60px;
+            height: 60px;
+            left: 90%;
+            animation-duration: 20s;
+            animation-delay: 4s;
+        }
+
+        .bubble:nth-child(9) {
+            width: 30px;
+            height: 30px;
+            left: 5%;
+            animation-duration: 17s;
+            animation-delay: 5s;
+        }
+
+        .bubble:nth-child(10) {
+            width: 55px;
+            height: 55px;
+            left: 95%;
+            animation-duration: 21s;
+            animation-delay: 6s;
+        }
+
+        @keyframes rise {
+            0% {
+                bottom: -100px;
+                transform: translateX(0);
+                opacity: 0.1;
+            }
+            50% {
+                transform: translateX(100px);
+                opacity: 0.3;
+            }
+            100% {
+                bottom: 1080px;
+                transform: translateX(-100px);
+                opacity: 0;
+            }
+        }
+
+        /* Theme Toggle */
+        .theme-toggle {
+            position: fixed;
+            top: 1rem;
+            right: 1.5rem;
+            z-index: 1001;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: var(--dark-surface);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: var(--shadow-card);
+            border: 1px solid var(--glass-border);
+            transition: all 0.3s ease;
+        }
+
+        .theme-toggle:hover {
+            transform: scale(1.1);
+            box-shadow: var(--shadow-glow);
+        }
+
+        .theme-toggle i {
+            font-size: 1.1rem;
+            color: var(--primary);
+        }
+
+        .container {
+            max-width: 1000px;
+            width: 100%;
+            text-align: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Back Link */
+        .back-link {
+            position: absolute;
+            top: -3.5rem;
+            left: 0;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 500;
+            transition: gap 0.3s ease;
+        }
+
+        .back-link:hover {
+            gap: 0.8rem;
+        }
+
+        .logo {
+            font-size: 3rem;
+            font-weight: bold;
+            background: var(--gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .logo::before {
+            content: "⚡";
+            font-size: 2.5rem;
+            filter: drop-shadow(0 0 10px var(--primary));
+        }
+
+        .tagline {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            margin-bottom: 3rem;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .section-title {
+            font-size: 2.2rem;
+            margin-bottom: 1rem;
+            background: var(--gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .section-subtitle {
+            color: var(--text-secondary);
+            margin-bottom: 3rem;
+            font-size: 1.1rem;
+        }
+
+        .role-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .role-card {
+            background: var(--dark-surface);
+            border-radius: 20px;
+            padding: 2.5rem 1.5rem;
+            border: 2px solid var(--glass-border);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+        }
+
+        .role-card:hover {
+            transform: translateY(-10px);
+            border-color: var(--primary);
+            box-shadow: var(--shadow-glow);
+        }
+
+        .role-card::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(
+                to bottom right,
+                rgba(139, 127, 255, 0.1),
+                rgba(255, 127, 163, 0.05)
+            );
+            transform: rotate(30deg);
+            transition: all 0.5s ease;
+            opacity: 0;
+        }
+
+        .role-card:hover::after {
+            opacity: 1;
+            animation: shine 1.5s ease;
+        }
+
+        @keyframes shine {
+            0% {
+                transform: rotate(30deg) translateX(-100%) translateY(-100%);
+            }
+            100% {
+                transform: rotate(30deg) translateX(100%) translateY(100%);
+            }
+        }
+
+        .role-icon {
+            width: 80px;
+            height: 80px;
+            background: var(--gradient-1);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            margin: 0 auto 1.5rem;
+            box-shadow: 0 5px 20px rgba(139, 127, 255, 0.3);
+            position: relative;
+            z-index: 2;
+        }
+
+        .role-name {
+            font-size: 1.4rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            position: relative;
+            z-index: 2;
+        }
+
+        .role-description {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            line-height: 1.5;
+            position: relative;
+            z-index: 2;
+        }
+
+        .login-prompt {
+            margin-top: 2rem;
+            color: var(--text-secondary);
+            font-size: 1rem;
+            padding: 1.5rem;
+            background: var(--dark-surface);
+            border-radius: 15px;
+            border: 1px solid var(--glass-border);
+            backdrop-filter: blur(10px);
+        }
+
+        .login-prompt a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .login-prompt a:hover {
+            text-decoration: underline;
+            color: var(--primary-light);
+        }
+
+        .role-hint {
+            position: absolute;
+            bottom: 1rem;
+            right: 1rem;
+            color: var(--primary);
+            opacity: 0;
+            transform: translateY(10px);
+            transition: all 0.3s ease;
+            font-size: 1.5rem;
+            z-index: 2;
+        }
+
+        .role-card:hover .role-hint {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        @media (max-width: 768px) {
+            .role-grid {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+                max-width: 400px;
+                margin-left: auto;
+                margin-right: auto;
+            }
+            
+            .logo {
+                font-size: 2.5rem;
+            }
+            
+            .section-title {
+                font-size: 1.8rem;
+            }
+            
+            body {
+                padding: 1rem;
+            }
+            
+            .container {
+                padding-top: 2rem;
+            }
+            
+            .back-link {
+                position: relative;
+                top: 0;
+                margin-bottom: 1rem;
+                display: inline-flex;
+                justify-content: center;
+                width: 100%;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .role-card {
+                padding: 2rem 1.2rem;
+            }
+            
+            .role-icon {
+                width: 70px;
+                height: 70px;
+                font-size: 1.8rem;
+            }
+            
+            .tagline {
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body data-theme="dark">
+    <!-- Background Bubbles Animation -->
+    <div class="bubbles">
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+    </div>
+
+    <!-- Theme Toggle -->
+    <div class="theme-toggle" id="themeToggle">
+        <i class="fas fa-moon"></i>
+    </div>
+
+    <div class="container">
+        <a href="index.html" class="back-link">
+            <i class="fas fa-arrow-left"></i> Back to Home
+        </a>
+
+        <div class="logo">NavMenta</div>
+        <p class="tagline">Your AI-powered career navigation platform. Start your journey by choosing your role.</p>
+        
+        <h2 class="section-title">How will you use NavMenta?</h2>
+        <p class="section-subtitle">Select your role to get started</p>
+        
+        <div class="role-grid">
+            <a href="job_seeker_reg_page.html" class="role-card">
+                <div class="role-icon">💼</div>
+                <div class="role-name">Job Seeker</div>
+                <div class="role-description">Find your dream job with AI-powered matching and personalized career guidance</div>
+                <div class="role-hint">
+                    <i class="fas fa-arrow-right"></i>
+                </div>
+            </a>
+            
+            <a href="mentorregpage.html" class="role-card">
+                <div class="role-icon">👥</div>
+                <div class="role-name">Mentor</div>
+                <div class="role-description">Share your expertise and guide the next generation of professionals</div>
+                <div class="role-hint">
+                    <i class="fas fa-arrow-right"></i>
+                </div>
+            </a>
+            
+            <a href="companyregestrationpage.html" class="role-card">
+                <div class="role-icon">🏢</div>
+                <div class="role-name">Company</div>
+                <div class="role-description">Find top talent and build your inclusive workplace culture</div>
+                <div class="role-hint">
+                    <i class="fas fa-arrow-right"></i>
+                </div>
+            </a>
+        </div>
+        
+        <div class="login-prompt">
+            Already have an account? <a href="login.html">Sign in here</a>
+        </div>
+    </div>
+
+    <script>
+        // Theme Toggle Functionality
+        const themeToggle = document.getElementById('themeToggle');
+        const body = document.body;
+        
+        themeToggle.addEventListener('click', () => {
+            const currentTheme = body.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            
+            body.setAttribute('data-theme', newTheme);
+            
+            // Update icon
+            const icon = themeToggle.querySelector('i');
+            if (newTheme === 'dark') {
+                icon.className = 'fas fa-moon';
+            } else {
+                icon.className = 'fas fa-sun';
+            }
+            
+            // Save preference to localStorage
+            localStorage.setItem('theme', newTheme);
+        });
+        
+        // Check for saved theme preference
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme) {
+            body.setAttribute('data-theme', savedTheme);
+            const icon = themeToggle.querySelector('i');
+            if (savedTheme === 'dark') {
+                icon.className = 'fas fa-moon';
+            } else {
+                icon.className = 'fas fa-sun';
+            }
+        }
+
+        // Role card hover effects
+        document.querySelectorAll('.role-card').forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                // Add ripple effect
+                const ripple = document.createElement('div');
+                ripple.style.position = 'absolute';
+                ripple.style.borderRadius = '50%';
+                ripple.style.background = 'rgba(139, 127, 255, 0.2)';
+                ripple.style.transform = 'scale(0)';
+                ripple.style.animation = 'ripple 0.6s linear';
+                ripple.style.zIndex = '1';
+                
+                const size = Math.max(this.offsetWidth, this.offsetHeight);
+                ripple.style.width = size + 'px';
+                ripple.style.height = size + 'px';
+                
+                const rect = this.getBoundingClientRect();
+                ripple.style.left = (event.clientX - rect.left - size/2) + 'px';
+                ripple.style.top = (event.clientY - rect.top - size/2) + 'px';
+                
+                this.appendChild(ripple);
+                
+                // Remove ripple after animation
+                setTimeout(() => {
+                    ripple.remove();
+                }, 600);
+            });
+        });
+
+        // Add CSS for ripple animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes ripple {
+                to {
+                    transform: scale(4);
+                    opacity: 0;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Add click confirmation for role cards
+        document.querySelectorAll('.role-card').forEach(card => {
+            card.addEventListener('click', function(e) {
+                const roleName = this.querySelector('.role-name').textContent;
+                
+                // Add loading state
+                const originalHTML = this.innerHTML;
+                this.innerHTML = `
+                    <div class="role-icon" style="background: var(--primary);">
+                        <i class="fas fa-spinner fa-spin"></i>
+                    </div>
+                    <div class="role-name">Loading...</div>
+                    <div class="role-description">Preparing your ${roleName} registration</div>
+                `;
+                
+                // Simulate loading delay
+                setTimeout(() => {
+                    this.innerHTML = originalHTML;
+                }, 1000);
+            });
+        });
+
+        // Keyboard navigation
+        document.addEventListener('keydown', function(e) {
+            const roleCards = document.querySelectorAll('.role-card');
+            
+            if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
+                e.preventDefault();
+                const currentFocus = document.activeElement;
+                let currentIndex = Array.from(roleCards).indexOf(currentFocus);
+                
+                if (currentIndex === -1) currentIndex = 0;
+                
+                if (e.key === 'ArrowRight') {
+                    currentIndex = (currentIndex + 1) % roleCards.length;
+                } else {
+                    currentIndex = (currentIndex - 1 + roleCards.length) % roleCards.length;
+                }
+                
+                roleCards[currentIndex].focus();
+            } else if (e.key === 'Enter' && document.activeElement.classList.contains('role-card')) {
+                // Trigger click on focused card
+                document.activeElement.click();
+            } else if (e.key === 't' && (e.ctrlKey || e.metaKey)) {
+                // Ctrl/Cmd + T to toggle theme
+                e.preventDefault();
+                themeToggle.click();
+            }
+        });
+
+        // Set focus to first role card for better accessibility
+        window.addEventListener('load', function() {
+            const roleCards = document.querySelectorAll('.role-card');
+            if (roleCards.length > 0) {
+                roleCards[0].setAttribute('tabindex', '0');
+                roleCards[0].focus();
+            }
+        });
+    </script>
+</body>
+</html>
