@@ -1,0 +1,1634 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NavMenta - Mentor Sign Up</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #8B7FFF;
+            --primary-light: #A396FF;
+            --dark-bg: #0A0E27;
+            --dark-surface: #151B3C;
+            --text-primary: #FFFFFF;
+            --text-secondary: #B8BED9;
+            --success: #4CAF50;
+            --warning: #FF9800;
+            --error: #F44336;
+            --mentor-accent: #FF7FA3;
+            --gradient-1: linear-gradient(135deg, #8B7FFF 0%, #FF7FA3 100%);
+            --gradient-mentor: linear-gradient(135deg, #FF7FA3 0%, #8B7FFF 100%);
+            --shadow-glow: 0 0 40px rgba(139, 127, 255, 0.3);
+            --shadow-card: 0 10px 40px rgba(0, 0, 0, 0.3);
+            --glass-bg: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --transition-smooth: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+        
+        [data-theme="light"] {
+            --primary: #6A5BCF;
+            --primary-light: #8B7FFF;
+            --dark-bg: #F5F7FF;
+            --dark-surface: #FFFFFF;
+            --text-primary: #1A1A2E;
+            --text-secondary: #4A4A6A;
+            --success: #4CAF50;
+            --warning: #FF9800;
+            --error: #F44336;
+            --mentor-accent: #FF4D7F;
+            --gradient-1: linear-gradient(135deg, #6A5BCF 0%, #FF4D7F 100%);
+            --gradient-mentor: linear-gradient(135deg, #FF4D7F 0%, #6A5BCF 100%);
+            --shadow-glow: 0 0 30px rgba(106, 91, 207, 0.2);
+            --shadow-card: 0 10px 30px rgba(0, 0, 0, 0.08);
+            --glass-bg: rgba(255, 255, 255, 0.7);
+            --glass-border: rgba(106, 91, 207, 0.1);
+        }
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: var(--dark-bg);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            position: relative;
+            overflow-x: hidden;
+            transition: background-color 0.5s ease, color 0.5s ease;
+        }
+
+        /* Background Bubble Effect */
+        .bubbles {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .bubble {
+            position: absolute;
+            bottom: -100px;
+            background: var(--mentor-accent);
+            border-radius: 50%;
+            opacity: 0.1;
+            animation: rise 15s infinite ease-in;
+        }
+
+        .bubble:nth-child(1) {
+            width: 40px;
+            height: 40px;
+            left: 10%;
+            animation-duration: 15s;
+            animation-delay: 0s;
+        }
+
+        .bubble:nth-child(2) {
+            width: 20px;
+            height: 20px;
+            left: 20%;
+            animation-duration: 12s;
+            animation-delay: 1s;
+        }
+
+        .bubble:nth-child(3) {
+            width: 50px;
+            height: 50px;
+            left: 35%;
+            animation-duration: 18s;
+            animation-delay: 2s;
+        }
+
+        .bubble:nth-child(4) {
+            width: 80px;
+            height: 80px;
+            left: 50%;
+            animation-duration: 22s;
+            animation-delay: 0s;
+        }
+
+        .bubble:nth-child(5) {
+            width: 35px;
+            height: 35px;
+            left: 65%;
+            animation-duration: 16s;
+            animation-delay: 1s;
+        }
+
+        .bubble:nth-child(6) {
+            width: 45px;
+            height: 45px;
+            left: 75%;
+            animation-duration: 19s;
+            animation-delay: 3s;
+        }
+
+        .bubble:nth-child(7) {
+            width: 25px;
+            height: 25px;
+            left: 85%;
+            animation-duration: 14s;
+            animation-delay: 2s;
+        }
+
+        .bubble:nth-child(8) {
+            width: 60px;
+            height: 60px;
+            left: 90%;
+            animation-duration: 20s;
+            animation-delay: 4s;
+        }
+
+        .bubble:nth-child(9) {
+            width: 30px;
+            height: 30px;
+            left: 5%;
+            animation-duration: 17s;
+            animation-delay: 5s;
+        }
+
+        .bubble:nth-child(10) {
+            width: 55px;
+            height: 55px;
+            left: 95%;
+            animation-duration: 21s;
+            animation-delay: 6s;
+        }
+
+        @keyframes rise {
+            0% {
+                bottom: -100px;
+                transform: translateX(0);
+                opacity: 0.1;
+            }
+            50% {
+                transform: translateX(100px);
+                opacity: 0.3;
+            }
+            100% {
+                bottom: 1080px;
+                transform: translateX(-100px);
+                opacity: 0;
+            }
+        }
+
+        /* Theme Toggle */
+        .theme-toggle {
+            position: fixed;
+            top: 1rem;
+            right: 1.5rem;
+            z-index: 1001;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: var(--dark-surface);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: var(--shadow-card);
+            border: 1px solid var(--glass-border);
+            transition: all 0.3s ease;
+        }
+
+        .theme-toggle:hover {
+            transform: scale(1.1);
+            box-shadow: var(--shadow-glow);
+        }
+
+        .theme-toggle i {
+            font-size: 1.1rem;
+            color: var(--primary);
+        }
+
+        .container {
+            max-width: 700px;
+            width: 100%;
+            position: relative;
+            z-index: 1;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--primary);
+            text-decoration: none;
+            margin-bottom: 2rem;
+            font-weight: 500;
+            transition: gap 0.3s ease;
+        }
+
+        .back-link:hover {
+            gap: 0.8rem;
+        }
+
+        .auth-card {
+            background: var(--dark-surface);
+            border-radius: 20px;
+            padding: 3rem;
+            box-shadow: var(--shadow-card);
+            border: 1px solid var(--glass-border);
+            backdrop-filter: blur(10px);
+        }
+
+        .logo {
+            font-size: 2.5rem;
+            font-weight: bold;
+            background: var(--gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .logo::before {
+            content: "⚡";
+            font-size: 2rem;
+            filter: drop-shadow(0 0 10px var(--primary));
+        }
+
+        .auth-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .role-badge {
+            display: inline-block;
+            background: var(--gradient-mentor);
+            color: white;
+            padding: 0.3rem 1.5rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            box-shadow: 0 4px 15px rgba(255, 127, 163, 0.3);
+        }
+
+        .auth-title {
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .auth-subtitle {
+            color: var(--text-secondary);
+            font-size: 1rem;
+            line-height: 1.5;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .required::after {
+            content: '*';
+            color: var(--error);
+            margin-left: 0.2rem;
+        }
+
+        .input-with-icon {
+            position: relative;
+        }
+
+        .input-with-icon i {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.8rem 1rem 0.8rem 2.5rem;
+            background: var(--dark-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 10px;
+            color: var(--text-primary);
+            font-size: 1rem;
+            transition: var(--transition-smooth);
+            appearance: none;
+            -webkit-appearance: none;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(139, 127, 255, 0.2);
+        }
+
+        .form-control.error {
+            border-color: var(--error);
+            box-shadow: 0 0 0 2px rgba(244, 67, 54, 0.2);
+        }
+
+        .form-control.success {
+            border-color: var(--success);
+        }
+
+        select.form-control {
+            padding-left: 1rem;
+        }
+
+        textarea.form-control {
+            padding-left: 1rem;
+            min-height: 100px;
+            resize: vertical;
+            line-height: 1.5;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        /* Progress Indicator */
+        .progress-container {
+            margin-bottom: 2rem;
+            transition: var(--transition-smooth);
+        }
+
+        .progress-text {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .progress-bar {
+            height: 6px;
+            background: var(--dark-bg);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--gradient-mentor);
+            width: 33%;
+            border-radius: 3px;
+            transition: width 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        /* Optional Mentor Profile Section */
+        .optional-section {
+            margin: 2rem 0;
+            padding: 1.5rem;
+            background: rgba(255, 127, 163, 0.05);
+            border-radius: 12px;
+            border: 1px solid var(--glass-border);
+            position: relative;
+            overflow: hidden;
+            max-height: 0;
+            opacity: 0;
+            transform: translateY(-10px);
+            transition: var(--transition-smooth);
+        }
+
+        .optional-section.visible {
+            max-height: 2500px;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .optional-section::before {
+            content: 'Optional - Can be added later';
+            position: absolute;
+            top: -10px;
+            left: 1rem;
+            background: var(--dark-surface);
+            padding: 0 0.5rem;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+            transition: var(--transition-smooth);
+        }
+
+        .optional-section.visible::before {
+            opacity: 1;
+        }
+
+        .optional-section h3 {
+            color: var(--mentor-accent);
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .optional-section h3 i {
+            color: var(--mentor-accent);
+        }
+
+        /* Toggle Switch */
+        .toggle-switch {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+            padding: 0.8rem;
+            background: var(--dark-bg);
+            border-radius: 10px;
+            border: 1px solid var(--glass-border);
+            cursor: pointer;
+            transition: var(--transition-smooth);
+        }
+
+        .toggle-switch:hover {
+            border-color: var(--primary);
+            transform: translateY(-2px);
+        }
+
+        .toggle-label {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            font-weight: 500;
+        }
+
+        .toggle-icon {
+            width: 30px;
+            height: 30px;
+            background: var(--gradient-mentor);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            transition: var(--transition-smooth);
+        }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: var(--text-secondary);
+            transition: .4s;
+            border-radius: 24px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: var(--primary);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+
+        /* Info Card */
+        .info-card {
+            background: rgba(139, 127, 255, 0.1);
+            border-left: 4px solid var(--primary);
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: flex-start;
+            gap: 0.8rem;
+        }
+
+        .info-card p {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            line-height: 1.5;
+            margin: 0;
+        }
+
+        .info-card i {
+            color: var(--primary);
+            margin-top: 0.1rem;
+        }
+
+        /* Mentor Expertise Tags */
+        .expertise-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .expertise-tag {
+            background: rgba(139, 127, 255, 0.1);
+            border: 1px solid rgba(139, 127, 255, 0.3);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+        }
+
+        .expertise-tag:hover {
+            background: rgba(139, 127, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .expertise-tag.selected {
+            background: var(--gradient-1);
+            color: white;
+            border-color: transparent;
+        }
+
+        /* Password Strength */
+        .password-strength {
+            margin-top: 0.5rem;
+            height: 4px;
+            border-radius: 2px;
+            background: var(--dark-bg);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .strength-meter {
+            height: 100%;
+            width: 0%;
+            border-radius: 2px;
+            transition: all 0.3s ease;
+        }
+
+        .strength-text {
+            font-size: 0.8rem;
+            margin-top: 0.3rem;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .strength-weak {
+            background: var(--error);
+            width: 33%;
+        }
+
+        .strength-medium {
+            background: var(--warning);
+            width: 66%;
+        }
+
+        .strength-strong {
+            background: var(--success);
+            width: 100%;
+        }
+
+        /* Error Messages */
+        .error-message {
+            color: var(--error);
+            font-size: 0.85rem;
+            margin-top: 0.3rem;
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+            height: 20px;
+            overflow: hidden;
+            transition: var(--transition-smooth);
+        }
+
+        .error-message i {
+            font-size: 0.8rem;
+        }
+
+        /* Validation Icons */
+        .validation-icon {
+            position: absolute;
+            right: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            display: none;
+        }
+
+        .form-control.success + .validation-icon .fa-check {
+            display: block;
+            color: var(--success);
+        }
+
+        .form-control.error + .validation-icon .fa-times {
+            display: block;
+            color: var(--error);
+        }
+
+        /* Checkbox Styling */
+        .checkbox-group {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.8rem;
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            background: var(--dark-bg);
+            border-radius: 10px;
+            border: 1px solid var(--glass-border);
+            transition: var(--transition-smooth);
+        }
+
+        .checkbox-group:hover {
+            border-color: var(--primary);
+        }
+
+        .checkbox-group input {
+            width: 18px;
+            height: 18px;
+            accent-color: var(--primary);
+            margin-top: 0.2rem;
+            flex-shrink: 0;
+        }
+
+        .checkbox-group label {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .checkbox-group a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .checkbox-group a:hover {
+            text-decoration: underline;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: var(--transition-smooth);
+            width: 100%;
+            font-size: 1rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary {
+            background: var(--gradient-mentor);
+            color: white;
+            box-shadow: 0 5px 20px rgba(255, 127, 163, 0.3);
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(255, 127, 163, 0.5);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .btn-loading {
+            position: relative;
+            color: transparent !important;
+        }
+
+        .btn-loading::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            top: 50%;
+            left: 50%;
+            margin-left: -10px;
+            margin-top: -10px;
+            border: 2px solid white;
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .form-footer {
+            text-align: center;
+            margin-top: 1.5rem;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .form-footer a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .form-footer a:hover {
+            text-decoration: underline;
+        }
+
+        /* Select dropdown styling */
+        select.form-control {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23FF7FA3' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 1rem center;
+            background-size: 16px;
+            padding-right: 2.5rem;
+        }
+
+        /* Expertise Input Field */
+        .expertise-input {
+            position: relative;
+        }
+
+        .add-expertise-btn {
+            position: absolute;
+            right: 0.5rem;
+            top: 50%;
+            transform: translateY(-50%);
+            background: var(--gradient-1);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 0.3rem 0.8rem;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: var(--transition-smooth);
+        }
+
+        .add-expertise-btn:hover {
+            transform: translateY(-50%) scale(1.05);
+        }
+
+        /* Rating Stars */
+        .rating-stars {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .rating-star {
+            font-size: 1.5rem;
+            color: #ddd;
+            cursor: pointer;
+            transition: color 0.2s ease;
+        }
+
+        .rating-star:hover,
+        .rating-star.active {
+            color: #FFD700;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .auth-card {
+                padding: 2rem;
+            }
+            
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            body {
+                padding: 1rem;
+            }
+            
+            .logo {
+                font-size: 2.2rem;
+            }
+            
+            .auth-title {
+                font-size: 1.6rem;
+            }
+            
+            .container {
+                max-width: 100%;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .auth-card {
+                padding: 1.5rem;
+            }
+            
+            .logo {
+                font-size: 2rem;
+            }
+            
+            .form-group label {
+                font-size: 0.9rem;
+            }
+            
+            .expertise-tags {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body data-theme="dark">
+    <!-- Background Bubbles Animation -->
+    <div class="bubbles">
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+    </div>
+
+    <!-- Theme Toggle -->
+    <div class="theme-toggle" id="themeToggle">
+        <i class="fas fa-moon"></i>
+    </div>
+
+    <div class="container">
+        <a href="role-selection.html" class="back-link">
+            <i class="fas fa-arrow-left"></i> Back to Role Selection
+        </a>
+
+        <div class="auth-card">
+            <!-- Progress Indicator -->
+            <div class="progress-container">
+                <div class="progress-text">
+                    <span>Basic Information</span>
+                    <span>Mentor Profile (Optional)</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+            </div>
+
+            <div class="logo">NavMenta</div>
+            
+            <div class="auth-header">
+                <div class="role-badge">
+                    <i class="fas fa-user-tie"></i> Mentor
+                </div>
+                <h2 class="auth-title">Share Your Expertise</h2>
+                <p class="auth-subtitle">Create your account now. Add your professional profile and expertise later in your dashboard.</p>
+            </div>
+
+            <form id="signupForm">
+                <!-- Basic Information Section -->
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="firstName" class="required">
+                            <i class="fas fa-user"></i> First Name
+                        </label>
+                        <div class="input-with-icon">
+                            <i class="fas fa-user"></i>
+                            <input type="text" id="firstName" class="form-control" placeholder="First name" required>
+                            <div class="validation-icon">
+                                <i class="fas fa-check"></i>
+                                <i class="fas fa-times"></i>
+                            </div>
+                        </div>
+                        <div class="error-message" id="firstNameError"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="lastName" class="required">
+                            <i class="fas fa-user"></i> Last Name
+                        </label>
+                        <div class="input-with-icon">
+                            <i class="fas fa-user"></i>
+                            <input type="text" id="lastName" class="form-control" placeholder="Last name" required>
+                            <div class="validation-icon">
+                                <i class="fas fa-check"></i>
+                                <i class="fas fa-times"></i>
+                            </div>
+                        </div>
+                        <div class="error-message" id="lastNameError"></div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="email" class="required">
+                        <i class="fas fa-envelope"></i> Email Address
+                    </label>
+                    <div class="input-with-icon">
+                        <i class="fas fa-envelope"></i>
+                        <input type="email" id="email" class="form-control" placeholder="Enter your email" required>
+                        <div class="validation-icon">
+                            <i class="fas fa-check"></i>
+                            <i class="fas fa-times"></i>
+                        </div>
+                    </div>
+                    <div class="error-message" id="emailError"></div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="password" class="required">
+                            <i class="fas fa-lock"></i> Password
+                        </label>
+                        <div class="input-with-icon">
+                            <i class="fas fa-lock"></i>
+                            <input type="password" id="password" class="form-control" placeholder="Create a strong password" required minlength="8">
+                            <div class="validation-icon">
+                                <i class="fas fa-check"></i>
+                                <i class="fas fa-times"></i>
+                            </div>
+                        </div>
+                        <div class="password-strength">
+                            <div class="strength-meter" id="passwordStrength"></div>
+                        </div>
+                        <div class="strength-text">
+                            <span>Weak</span>
+                            <span id="strengthLabel">Enter password</span>
+                            <span>Strong</span>
+                        </div>
+                        <div class="error-message" id="passwordError"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="confirmPassword" class="required">
+                            <i class="fas fa-lock"></i> Confirm Password
+                        </label>
+                        <div class="input-with-icon">
+                            <i class="fas fa-lock"></i>
+                            <input type="password" id="confirmPassword" class="form-control" placeholder="Confirm your password" required>
+                            <div class="validation-icon">
+                                <i class="fas fa-check"></i>
+                                <i class="fas fa-times"></i>
+                            </div>
+                        </div>
+                        <div class="error-message" id="confirmPasswordError"></div>
+                    </div>
+                </div>
+
+                <!-- Mentor Profile Toggle -->
+                <div class="toggle-switch" id="mentorProfileToggle">
+                    <div class="toggle-label">
+                        <div class="toggle-icon">
+                            <i class="fas fa-user-graduate"></i>
+                        </div>
+                        <span>Add mentor profile now (optional)</span>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="showMentorProfile">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+
+                <!-- Optional Mentor Profile Section -->
+                <div class="optional-section" id="mentorProfileSection">
+                    <h3>
+                        <i class="fas fa-award"></i>
+                        Professional Profile
+                    </h3>
+                    
+                    <div class="info-card">
+                        <i class="fas fa-info-circle"></i>
+                        <p>This information helps mentees find the right mentor. You can update this anytime in your dashboard.</p>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="currentRole">
+                            <i class="fas fa-briefcase"></i> Current Role
+                        </label>
+                        <input type="text" id="currentRole" class="form-control" placeholder="e.g. Senior Product Manager, Tech Lead">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="company">
+                            <i class="fas fa-building"></i> Current Company
+                        </label>
+                        <input type="text" id="company" class="form-control" placeholder="Your current company">
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="yearsExperience">
+                                <i class="fas fa-chart-line"></i> Years of Experience
+                            </label>
+                            <select id="yearsExperience" class="form-control">
+                                <option value="">Select experience</option>
+                                <option value="0-2">0-2 years</option>
+                                <option value="3-5">3-5 years</option>
+                                <option value="6-10">6-10 years</option>
+                                <option value="10-15">10-15 years</option>
+                                <option value="15+">15+ years</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="mentorIndustry">
+                                <i class="fas fa-industry"></i> Industry
+                            </label>
+                            <select id="mentorIndustry" class="form-control">
+                                <option value="">Select industry</option>
+                                <option value="technology">Technology</option>
+                                <option value="finance">Finance & Banking</option>
+                                <option value="healthcare">Healthcare</option>
+                                <option value="education">Education</option>
+                                <option value="marketing">Marketing & Advertising</option>
+                                <option value="consulting">Consulting</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="expertise">
+                            <i class="fas fa-lightbulb"></i> Areas of Expertise
+                        </label>
+                        <div class="expertise-input">
+                            <input type="text" id="expertise" class="form-control" placeholder="e.g. Product Management, Machine Learning, Leadership">
+                            <button type="button" class="add-expertise-btn" id="addExpertiseBtn">Add</button>
+                        </div>
+                        <div class="expertise-tags" id="expertiseTags">
+                            <!-- Expertise tags will be added here -->
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="availability">
+                                <i class="fas fa-clock"></i> Weekly Availability
+                            </label>
+                            <select id="availability" class="form-control">
+                                <option value="">Select availability</option>
+                                <option value="1-3">1-3 hours/week</option>
+                                <option value="3-5">3-5 hours/week</option>
+                                <option value="5-10">5-10 hours/week</option>
+                                <option value="10+">10+ hours/week</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="mentoringStyle">
+                                <i class="fas fa-chalkboard-teacher"></i> Mentoring Style
+                            </label>
+                            <select id="mentoringStyle" class="form-control">
+                                <option value="">Select your style</option>
+                                <option value="directive">Directive (Clear guidance)</option>
+                                <option value="collaborative">Collaborative (Work together)</option>
+                                <option value="facilitative">Facilitative (Help find answers)</option>
+                                <option value="holistic">Holistic (Whole person development)</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="linkedin">
+                            <i class="fab fa-linkedin"></i> LinkedIn Profile
+                        </label>
+                        <input type="url" id="linkedin" class="form-control" placeholder="https://linkedin.com/in/yourprofile">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="bio">
+                            <i class="fas fa-pen"></i> Professional Bio
+                        </label>
+                        <textarea id="bio" class="form-control" placeholder="Tell us about your professional journey, accomplishments, and why you want to mentor others..."></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>
+                            <i class="fas fa-star"></i> Preferred Mentoring Topics
+                        </label>
+                        <div class="expertise-tags" id="topicTags">
+                            <span class="expertise-tag" data-topic="career-growth">Career Growth</span>
+                            <span class="expertise-tag" data-topic="technical-skills">Technical Skills</span>
+                            <span class="expertise-tag" data-topic="leadership">Leadership</span>
+                            <span class="expertise-tag" data-topic="interview-prep">Interview Prep</span>
+                            <span class="expertise-tag" data-topic="resume-review">Resume Review</span>
+                            <span class="expertise-tag" data-topic="networking">Networking</span>
+                            <span class="expertise-tag" data-topic="work-life-balance">Work-Life Balance</span>
+                            <span class="expertise-tag" data-topic="entrepreneurship">Entrepreneurship</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="checkbox-group">
+                    <input type="checkbox" id="agreeTerms" required>
+                    <label for="agreeTerms">
+                        I agree to the <a href="#" target="_blank">Terms of Service</a> and <a href="#" target="_blank">Privacy Policy</a>. 
+                        I understand that I can complete my mentor profile later in the dashboard.
+                    </label>
+                </div>
+
+                <button type="submit" class="btn btn-primary" id="submitBtn">
+                    Create Mentor Account
+                </button>
+
+                <div class="form-footer">
+                    Already have an account? <a href="login.html">Sign in here</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+    // Theme Toggle Functionality
+    const themeToggle = document.getElementById('themeToggle');
+    const body = document.body;
+    
+    themeToggle.addEventListener('click', () => {
+        const currentTheme = body.getAttribute('data-theme');
+        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        
+        body.setAttribute('data-theme', newTheme);
+        
+        // Update icon
+        const icon = themeToggle.querySelector('i');
+        if (newTheme === 'dark') {
+            icon.className = 'fas fa-moon';
+        } else {
+            icon.className = 'fas fa-sun';
+        }
+        
+        // Save preference to localStorage
+        localStorage.setItem('theme', newTheme);
+    });
+    
+    // Check for saved theme preference
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme) {
+        body.setAttribute('data-theme', savedTheme);
+        const icon = themeToggle.querySelector('i');
+        if (savedTheme === 'dark') {
+            icon.className = 'fas fa-moon';
+        } else {
+            icon.className = 'fas fa-sun';
+        }
+    }
+
+    // Toggle Mentor Profile Section with Smooth Animation
+    const mentorProfileToggle = document.getElementById('mentorProfileToggle');
+    const showMentorProfile = document.getElementById('showMentorProfile');
+    const mentorProfileSection = document.getElementById('mentorProfileSection');
+    const progressFill = document.getElementById('progressFill');
+    const toggleIcon = mentorProfileToggle.querySelector('.toggle-icon');
+    const toggleLabel = mentorProfileToggle.querySelector('.toggle-label span');
+
+    showMentorProfile.addEventListener('change', function() {
+        if (this.checked) {
+            // Smooth transition for mentor profile section
+            setTimeout(() => {
+                mentorProfileSection.classList.add('visible');
+                progressFill.style.width = '66%'; // Show progress for optional info
+            }, 10);
+            
+            // Animate toggle icon
+            toggleIcon.style.transform = 'rotate(360deg)';
+            setTimeout(() => {
+                toggleIcon.style.transform = 'rotate(0deg)';
+            }, 400);
+            
+            // Update toggle text
+            toggleLabel.textContent = 'Mentor profile added ✓';
+            mentorProfileToggle.style.borderColor = 'var(--primary)';
+        } else {
+            // Smooth transition out
+            mentorProfileSection.classList.remove('visible');
+            progressFill.style.width = '33%'; // Back to basic info only
+            
+            // Reset toggle
+            toggleLabel.textContent = 'Add mentor profile now (optional)';
+            mentorProfileToggle.style.borderColor = '';
+        }
+    });
+
+    // Expertise Tags Functionality
+    const expertiseInput = document.getElementById('expertise');
+    const addExpertiseBtn = document.getElementById('addExpertiseBtn');
+    const expertiseTags = document.getElementById('expertiseTags');
+    const topicTags = document.getElementById('topicTags');
+    const selectedTopics = new Set();
+    const selectedExpertise = new Set();
+
+    // Add expertise tag
+    addExpertiseBtn.addEventListener('click', function() {
+        const expertise = expertiseInput.value.trim();
+        if (expertise && !selectedExpertise.has(expertise)) {
+            addExpertiseTag(expertise);
+            expertiseInput.value = '';
+        }
+    });
+
+    expertiseInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            addExpertiseBtn.click();
+        }
+    });
+
+    function addExpertiseTag(tagText) {
+        const tag = document.createElement('span');
+        tag.className = 'expertise-tag';
+        tag.textContent = tagText;
+        tag.dataset.expertise = tagText;
+        
+        tag.addEventListener('click', function() {
+            tag.classList.toggle('selected');
+            if (selectedExpertise.has(tagText)) {
+                selectedExpertise.delete(tagText);
+            } else {
+                selectedExpertise.add(tagText);
+            }
+        });
+        
+        expertiseTags.appendChild(tag);
+        selectedExpertise.add(tagText);
+        tag.classList.add('selected');
+    }
+
+    // Topic tags selection
+    topicTags.querySelectorAll('.expertise-tag').forEach(tag => {
+        tag.addEventListener('click', function() {
+            const topic = this.dataset.topic;
+            this.classList.toggle('selected');
+            if (selectedTopics.has(topic)) {
+                selectedTopics.delete(topic);
+            } else {
+                selectedTopics.add(topic);
+            }
+        });
+    });
+
+    // Pre-select some topics
+    setTimeout(() => {
+        const defaultTopics = ['career-growth', 'technical-skills', 'leadership'];
+        defaultTopics.forEach(topic => {
+            const tag = document.querySelector(`[data-topic="${topic}"]`);
+            if (tag) {
+                tag.classList.add('selected');
+                selectedTopics.add(topic);
+            }
+        });
+    }, 500);
+
+    // Password Strength Checker
+    const passwordInputElement = document.getElementById('password');
+    const passwordStrength = document.getElementById('passwordStrength');
+    const strengthLabel = document.getElementById('strengthLabel');
+
+    passwordInputElement.addEventListener('input', function() {
+        const password = this.value;
+        let strength = 0;
+        let label = 'Weak';
+
+        // Check password strength
+        if (password.length >= 8) strength++;
+        if (/[A-Z]/.test(password)) strength++;
+        if (/[a-z]/.test(password)) strength++;
+        if (/[0-9]/.test(password)) strength++;
+        if (/[^A-Za-z0-9]/.test(password)) strength++;
+
+        // Update strength meter
+        passwordStrength.className = 'strength-meter';
+        if (strength === 0) {
+            label = 'Enter password';
+        } else if (strength <= 2) {
+            passwordStrength.classList.add('strength-weak');
+            label = 'Weak';
+        } else if (strength <= 4) {
+            passwordStrength.classList.add('strength-medium');
+            label = 'Medium';
+        } else {
+            passwordStrength.classList.add('strength-strong');
+            label = 'Strong';
+        }
+
+        strengthLabel.textContent = label;
+    });
+
+    // Form Validation
+    const form = document.getElementById('signupForm');
+    const firstNameInput = document.getElementById('firstName');
+    const lastNameInput = document.getElementById('lastName');
+    const emailInput = document.getElementById('email');
+    const confirmPasswordInput = document.getElementById('confirmPassword');
+    const submitBtn = document.getElementById('submitBtn');
+
+    // Validation functions
+    function validateName(name, isFirstName = true) {
+        const errorElement = document.getElementById(isFirstName ? 'firstNameError' : 'lastNameError');
+        const inputElement = isFirstName ? firstNameInput : lastNameInput;
+        
+        if (!name.trim()) {
+            showError(inputElement, errorElement, 'This field is required');
+            return false;
+        }
+        
+        if (name.length < 2) {
+            showError(inputElement, errorElement, 'Name must be at least 2 characters');
+            return false;
+        }
+        
+        if (!/^[A-Za-z\s\-']+$/.test(name)) {
+            showError(inputElement, errorElement, 'Name can only contain letters, spaces, hyphens, and apostrophes');
+            return false;
+        }
+        
+        showSuccess(inputElement, errorElement);
+        return true;
+    }
+
+    function validateEmail(email) {
+        const errorElement = document.getElementById('emailError');
+        
+        if (!email.trim()) {
+            showError(emailInput, errorElement, 'Email is required');
+            return false;
+        }
+        
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            showError(emailInput, errorElement, 'Please enter a valid email address');
+            return false;
+        }
+        
+        showSuccess(emailInput, errorElement);
+        return true;
+    }
+
+    function validatePassword(password) {
+        const errorElement = document.getElementById('passwordError');
+        
+        if (!password) {
+            showError(passwordInputElement, errorElement, 'Password is required');
+            return false;
+        }
+        
+        if (password.length < 8) {
+            showError(passwordInputElement, errorElement, 'Password must be at least 8 characters');
+            return false;
+        }
+        
+        if (!/[A-Z]/.test(password)) {
+            showError(passwordInputElement, errorElement, 'Password must contain at least one uppercase letter');
+            return false;
+        }
+        
+        if (!/[0-9]/.test(password)) {
+            showError(passwordInputElement, errorElement, 'Password must contain at least one number');
+            return false;
+        }
+        
+        showSuccess(passwordInputElement, errorElement);
+        return true;
+    }
+
+    function validateConfirmPassword(confirmPassword, password) {
+        const errorElement = document.getElementById('confirmPasswordError');
+        
+        if (!confirmPassword) {
+            showError(confirmPasswordInput, errorElement, 'Please confirm your password');
+            return false;
+        }
+        
+        if (confirmPassword !== password) {
+            showError(confirmPasswordInput, errorElement, 'Passwords do not match');
+            return false;
+        }
+        
+        showSuccess(confirmPasswordInput, errorElement);
+        return true;
+    }
+
+    function showError(input, errorElement, message) {
+        input.classList.remove('success');
+        input.classList.add('error');
+        errorElement.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${message}`;
+        errorElement.style.display = 'flex';
+    }
+
+    function showSuccess(input, errorElement) {
+        input.classList.remove('error');
+        input.classList.add('success');
+        errorElement.style.display = 'none';
+    }
+
+    // Real-time validation
+    firstNameInput.addEventListener('blur', () => validateName(firstNameInput.value, true));
+    lastNameInput.addEventListener('blur', () => validateName(lastNameInput.value, false));
+    emailInput.addEventListener('blur', () => validateEmail(emailInput.value));
+    passwordInputElement.addEventListener('blur', () => validatePassword(passwordInputElement.value));
+    confirmPasswordInput.addEventListener('blur', () => 
+        validateConfirmPassword(confirmPasswordInput.value, passwordInputElement.value)
+    );
+
+    // Form submission
+    form.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        // Validate all required fields
+        const isFirstNameValid = validateName(firstNameInput.value, true);
+        const isLastNameValid = validateName(lastNameInput.value, false);
+        const isEmailValid = validateEmail(emailInput.value);
+        const isPasswordValid = validatePassword(passwordInputElement.value);
+        const isConfirmPasswordValid = validateConfirmPassword(confirmPasswordInput.value, passwordInputElement.value);
+        
+        // Check terms agreement
+        const agreeTerms = document.getElementById('agreeTerms');
+        if (!agreeTerms.checked) {
+            showToast('Please agree to the Terms of Service and Privacy Policy', 'error');
+            return;
+        }
+        
+        if (!isFirstNameValid || !isLastNameValid || !isEmailValid || 
+            !isPasswordValid || !isConfirmPasswordValid) {
+            showToast('Please fix the errors in the form', 'error');
+            return;
+        }
+        
+        // Show loading state
+        submitBtn.disabled = true;
+        submitBtn.classList.add('btn-loading');
+        submitBtn.innerHTML = '';
+        
+        // Collect form data (for backend submission)
+        const formData = {
+            firstName: firstNameInput.value.trim(),
+            lastName: lastNameInput.value.trim(),
+            email: emailInput.value.trim(),
+            password: passwordInputElement.value,
+            hasMentorProfile: showMentorProfile.checked,
+            mentorProfile: showMentorProfile.checked ? {
+                currentRole: document.getElementById('currentRole').value,
+                company: document.getElementById('company').value,
+                yearsExperience: document.getElementById('yearsExperience').value,
+                industry: document.getElementById('mentorIndustry').value,
+                expertise: Array.from(selectedExpertise),
+                availability: document.getElementById('availability').value,
+                mentoringStyle: document.getElementById('mentoringStyle').value,
+                linkedin: document.getElementById('linkedin').value,
+                bio: document.getElementById('bio').value,
+                topics: Array.from(selectedTopics)
+            } : null,
+            accountType: 'mentor',
+            createdAt: new Date().toISOString()
+        };
+        
+        // Simulate API call with delay (for demo purposes)
+        setTimeout(() => {
+            // Reset button state
+            submitBtn.disabled = false;
+            submitBtn.classList.remove('btn-loading');
+            submitBtn.innerHTML = 'Create Mentor Account';
+            
+            // Show success message
+            const successMessage = showMentorProfile.checked 
+                ? `Welcome to NavMenta, ${formData.firstName}! Your mentor profile has been created. You can now connect with mentees. Redirecting...`
+                : `Welcome to NavMenta, ${formData.firstName}! Your mentor account has been created. You can complete your profile in the dashboard. Redirecting...`;
+            
+            showToast(successMessage, 'success');
+            
+            // For demo purposes, we'll just log the data
+            // In production, you would send formData to your backend API
+            console.log('Mentor registration data to be sent to backend:', formData);
+            
+            // Redirect to mentor_dashboard.html after 2 seconds
+            setTimeout(() => {
+                window.location.href = 'mentor_dashboard.html';
+            }, 2000);
+            
+        }, 1500);
+    });
+
+    // Toast notification function
+    function showToast(message, type = 'success') {
+        // Remove existing toasts
+        const existingToasts = document.querySelectorAll('.custom-toast');
+        existingToasts.forEach(toast => toast.remove());
+        
+        const toast = document.createElement('div');
+        toast.className = 'custom-toast';
+        
+        const icon = type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle';
+        const bgColor = type === 'success' ? 'var(--success)' : 
+                        type === 'error' ? 'var(--error)' : 'var(--mentor-accent)';
+        
+        toast.style.cssText = `
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: ${bgColor};
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 10px;
+            box-shadow: var(--shadow-glow);
+            z-index: 1000;
+            animation: slideIn 0.3s ease;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            max-width: 350px;
+            word-break: break-word;
+        `;
+        
+        toast.innerHTML = `
+            <i class="fas ${icon}"></i>
+            <span>${message}</span>
+        `;
+        
+        document.body.appendChild(toast);
+        
+        // Auto remove after 4 seconds
+        setTimeout(() => {
+            toast.style.animation = 'slideOut 0.3s ease';
+            setTimeout(() => toast.remove(), 300);
+        }, 4000);
+    }
+
+    // Add CSS for animations
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        @keyframes slideOut {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+        }
+        
+        /* Smooth transition for select dropdowns */
+        select.form-control {
+            transition: all 0.3s ease;
+        }
+        
+        select.form-control:focus {
+            transform: translateY(-1px);
+            box-shadow: 0 5px 15px rgba(255, 127, 163, 0.2);
+        }
+        
+        /* Animation for progress bar */
+        @keyframes progressPulse {
+            0% { transform: scaleX(1); }
+            50% { transform: scaleX(1.02); }
+            100% { transform: scaleX(1); }
+        }
+        
+        .progress-fill {
+            animation: progressPulse 2s infinite ease-in-out;
+        }
+    `;
+    document.head.appendChild(style);
+
+    // Auto-focus first input
+    setTimeout(() => {
+        firstNameInput.focus();
+    }, 500);
+    </script>
+</body>
+</html>

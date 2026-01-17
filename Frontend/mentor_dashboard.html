@@ -1,0 +1,3273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NavMenta - Mentor Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #8B7FFF;
+            --primary-light: #A396FF;
+            --primary-dark: #6A5DC7;
+            --mentor-accent: #FF7FA3;
+            --mentor-gradient: linear-gradient(135deg, #8B7FFF 0%, #FF7FA3 100%);
+            --dark-bg: #0F1419;
+            --dark-surface: #1A1F2E;
+            --dark-card: #232A3B;
+            --text-primary: #FFFFFF;
+            --text-secondary: #94A3B8;
+            --accent-1: #FF6B9D;
+            --accent-2: #00D4AA;
+            --accent-3: #FFA726;
+            --success: #10B981;
+            --warning: #F59E0B;
+            --error: #EF4444;
+            --border: #2D3748;
+            --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.1);
+            --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.15);
+            --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.2);
+            --sidebar-width: 260px;
+            --topbar-height: 70px;
+        }
+
+        [data-theme="light"] {
+            --dark-bg: #F8FAFC;
+            --dark-surface: #FFFFFF;
+            --dark-card: #FFFFFF;
+            --text-primary: #0F172A;
+            --text-secondary: #64748B;
+            --border: #E2E8F0;
+            --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+            --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--dark-bg);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Background Bubbles */
+        .bubbles {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .bubble {
+            position: absolute;
+            bottom: -100px;
+            background: var(--mentor-accent);
+            border-radius: 50%;
+            opacity: 0.1;
+            animation: rise 15s infinite ease-in;
+        }
+
+        .bubble:nth-child(1) { width: 40px; height: 40px; left: 10%; animation-duration: 15s; animation-delay: 0s; }
+        .bubble:nth-child(2) { width: 20px; height: 20px; left: 20%; animation-duration: 12s; animation-delay: 1s; }
+        .bubble:nth-child(3) { width: 50px; height: 50px; left: 35%; animation-duration: 18s; animation-delay: 2s; }
+        .bubble:nth-child(4) { width: 80px; height: 80px; left: 50%; animation-duration: 22s; animation-delay: 0s; }
+        .bubble:nth-child(5) { width: 35px; height: 35px; left: 65%; animation-duration: 16s; animation-delay: 1s; }
+
+        @keyframes rise {
+            0% { bottom: -100px; transform: translateX(0); opacity: 0.1; }
+            50% { transform: translateX(100px); opacity: 0.3; }
+            100% { bottom: 1080px; transform: translateX(-100px); opacity: 0; }
+        }
+
+        /* Layout Structure */
+        .app-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: var(--sidebar-width);
+            background: var(--dark-surface);
+            border-right: 1px solid var(--border);
+            position: fixed;
+            left: 0;
+            top: 0;
+            height: 100vh;
+            overflow-y: auto;
+            z-index: 1000;
+            transition: transform 0.3s ease;
+        }
+
+        .sidebar.collapsed {
+            transform: translateX(-100%);
+        }
+
+        .sidebar-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: var(--mentor-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .logo i {
+            font-size: 1.75rem;
+            background: var(--mentor-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-section {
+            padding: 1.5rem 1rem;
+        }
+
+        .nav-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.75rem;
+            padding: 0 0.75rem;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem;
+            border-radius: 8px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: all 0.2s;
+            margin-bottom: 0.25rem;
+            cursor: pointer;
+        }
+
+        .nav-item:hover {
+            background: rgba(139, 127, 255, 0.1);
+            color: var(--text-primary);
+        }
+
+        .nav-item.active {
+            background: var(--mentor-gradient);
+            color: white;
+        }
+
+        .nav-item i {
+            width: 20px;
+            text-align: center;
+        }
+
+        .nav-badge {
+            margin-left: auto;
+            background: var(--mentor-accent);
+            color: white;
+            font-size: 0.7rem;
+            padding: 0.2rem 0.5rem;
+            border-radius: 10px;
+            font-weight: 600;
+        }
+
+        /* Main Content */
+        .main-wrapper {
+            flex: 1;
+            margin-left: var(--sidebar-width);
+            transition: margin-left 0.3s ease;
+        }
+
+        .main-wrapper.expanded {
+            margin-left: 0;
+        }
+
+        /* Topbar */
+        .topbar {
+            height: var(--topbar-height);
+            background: var(--dark-surface);
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 900;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 2rem;
+            gap: 1rem;
+        }
+
+        .topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            color: var(--text-primary);
+            font-size: 1.25rem;
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 8px;
+        }
+
+        .menu-toggle:hover {
+            background: rgba(139, 127, 255, 0.1);
+        }
+
+        .search-bar {
+            display: flex;
+            align-items: center;
+            background: var(--dark-card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 0.5rem 1rem;
+            gap: 0.75rem;
+            min-width: 400px;
+            transition: all 0.3s;
+        }
+
+        .search-bar:focus-within {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(139, 127, 255, 0.1);
+        }
+
+        .search-bar i {
+            color: var(--text-secondary);
+        }
+
+        .search-bar input {
+            flex: 1;
+            background: none;
+            border: none;
+            outline: none;
+            color: var(--text-primary);
+            font-size: 0.95rem;
+        }
+
+        .search-bar input::placeholder {
+            color: var(--text-secondary);
+        }
+
+        .topbar-right {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .icon-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            background: var(--dark-card);
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .icon-btn:hover {
+            background: var(--mentor-accent);
+            color: white;
+            border-color: var(--mentor-accent);
+        }
+
+        .icon-btn .badge {
+            position: absolute;
+            top: -4px;
+            right: -4px;
+            background: var(--mentor-accent);
+            color: white;
+            font-size: 0.65rem;
+            padding: 0.15rem 0.4rem;
+            border-radius: 10px;
+            font-weight: 600;
+        }
+
+        .profile-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.5rem 0.75rem;
+            border-radius: 10px;
+            background: var(--dark-card);
+            border: 1px solid var(--border);
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .profile-btn:hover {
+            border-color: var(--mentor-accent);
+        }
+
+        .profile-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            background: var(--mentor-gradient);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: white;
+        }
+
+        .profile-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .profile-name {
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .profile-role {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        /* Profile Dropdown */
+        .profile-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            width: 250px;
+            background: var(--dark-surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            margin-top: 0.5rem;
+            box-shadow: var(--shadow-lg);
+            display: none;
+            z-index: 1001;
+        }
+
+        .profile-dropdown.show {
+            display: block;
+        }
+
+        .dropdown-header {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .dropdown-menu {
+            padding: 0.5rem 0;
+        }
+
+        .dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            color: var(--text-primary);
+            text-decoration: none;
+            transition: background 0.2s;
+            cursor: pointer;
+        }
+
+        .dropdown-item:hover {
+            background: rgba(139, 127, 255, 0.1);
+        }
+
+        .dropdown-item i {
+            width: 20px;
+            text-align: center;
+            color: var(--text-secondary);
+        }
+
+        .dropdown-divider {
+            height: 1px;
+            background: var(--border);
+            margin: 0.5rem 0;
+        }
+
+        /* Content Area */
+        .content {
+            padding: 2rem;
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        /* Welcome Banner */
+        .welcome-banner {
+            background: var(--mentor-gradient);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .welcome-banner::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+
+        .welcome-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .welcome-title {
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .welcome-text {
+            font-size: 1rem;
+            opacity: 0.9;
+            margin-bottom: 1.5rem;
+        }
+
+        .quick-actions-row {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .quick-action-btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .quick-action-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: var(--dark-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            transition: all 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .stat-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+        }
+
+        .stat-icon.mentor { background: rgba(255, 127, 163, 0.15); color: var(--mentor-accent); }
+        .stat-icon.purple { background: rgba(139, 127, 255, 0.15); color: var(--primary); }
+        .stat-icon.green { background: rgba(0, 212, 170, 0.15); color: var(--accent-2); }
+        .stat-icon.orange { background: rgba(255, 167, 38, 0.15); color: var(--accent-3); }
+
+        .stat-change {
+            font-size: 0.85rem;
+            font-weight: 600;
+            padding: 0.25rem 0.5rem;
+            border-radius: 6px;
+        }
+
+        .stat-change.positive {
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--success);
+        }
+
+        .stat-change.negative {
+            background: rgba(239, 68, 68, 0.15);
+            color: var(--error);
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        /* Section */
+        .section {
+            margin-bottom: 2rem;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.5rem;
+        }
+
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+        }
+
+        .section-actions {
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        .btn {
+            padding: 0.65rem 1.25rem;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .btn-primary {
+            background: var(--mentor-gradient);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(139, 127, 255, 0.3);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+        }
+
+        .btn-outline:hover {
+            background: rgba(139, 127, 255, 0.1);
+            border-color: var(--primary);
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #0da271;
+            transform: translateY(-2px);
+        }
+
+        /* Cards Grid */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+            gap: 1.5rem;
+        }
+
+        /* Mentor-specific Cards */
+        .mentee-card, .session-card, .request-card {
+            background: var(--dark-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .mentee-card:hover, .session-card:hover, .request-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-md);
+            border-color: var(--mentor-accent);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+
+        .card-avatar {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .avatar-circle {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: var(--mentor-gradient);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: white;
+            font-size: 1rem;
+        }
+
+        .card-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .card-subtitle {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .card-actions-top {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .icon-action {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .icon-action:hover {
+            background: rgba(139, 127, 255, 0.1);
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .icon-action.active {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: white;
+        }
+
+        .card-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .tag {
+            padding: 0.35rem 0.75rem;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .tag.purple {
+            background: rgba(139, 127, 255, 0.1);
+            color: var(--primary);
+        }
+
+        .tag.green {
+            background: rgba(0, 212, 170, 0.1);
+            color: var(--accent-2);
+        }
+
+        .tag.orange {
+            background: rgba(255, 167, 38, 0.1);
+            color: var(--accent-3);
+        }
+
+        .tag.pink {
+            background: rgba(255, 127, 163, 0.1);
+            color: var(--mentor-accent);
+        }
+
+        .card-description {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+            line-height: 1.6;
+        }
+
+        .card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border);
+        }
+
+        .card-meta {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .card-rating {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .card-rating i {
+            color: #FFD700;
+            font-size: 0.9rem;
+        }
+
+        .card-time {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .match-badge {
+            padding: 0.4rem 0.75rem;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--success);
+        }
+
+        /* Progress Card */
+        .progress-card {
+            background: var(--dark-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+        }
+
+        .progress-item {
+            margin-bottom: 1.5rem;
+        }
+
+        .progress-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .progress-label {
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .progress-value {
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--primary);
+        }
+
+        .progress-bar-container {
+            height: 8px;
+            background: rgba(139, 127, 255, 0.1);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: var(--mentor-gradient);
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+
+        /* Modals */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--dark-surface);
+            border-radius: 16px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .modal-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 1.25rem;
+            cursor: pointer;
+            padding: 0.25rem;
+            border-radius: 4px;
+        }
+
+        .modal-close:hover {
+            background: rgba(139, 127, 255, 0.1);
+        }
+
+        .modal-body {
+            padding: 1.5rem;
+        }
+
+        .modal-footer {
+            padding: 1.5rem;
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.75rem;
+        }
+
+        /* Form Elements */
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background: var(--dark-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-size: 0.95rem;
+            transition: all 0.3s;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(139, 127, 255, 0.1);
+        }
+
+        .form-textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        /* Session Details */
+        .session-details {
+            background: rgba(139, 127, 255, 0.05);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+        }
+
+        .detail-label {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .detail-value {
+            font-weight: 500;
+        }
+
+        /* Notification Dropdown */
+        .notification-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            width: 350px;
+            background: var(--dark-surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            margin-top: 0.5rem;
+            box-shadow: var(--shadow-lg);
+            display: none;
+            z-index: 1001;
+        }
+
+        .notification-dropdown.show {
+            display: block;
+        }
+
+        .notification-header {
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .notification-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .notification-item {
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .notification-item:hover {
+            background: rgba(139, 127, 255, 0.05);
+        }
+
+        .notification-item.unread {
+            background: rgba(139, 127, 255, 0.1);
+        }
+
+        .notification-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            background: var(--mentor-gradient);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+
+        .notification-content {
+            flex: 1;
+        }
+
+        .notification-title {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .notification-text {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+        }
+
+        .notification-time {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .search-bar {
+                min-width: 300px;
+            }
+            
+            .cards-grid {
+                grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+
+            .sidebar.show {
+                transform: translateX(0);
+            }
+
+            .main-wrapper {
+                margin-left: 0;
+            }
+
+            .menu-toggle {
+                display: flex;
+            }
+
+            .topbar {
+                padding: 0 1rem;
+            }
+
+            .search-bar {
+                min-width: 0;
+                flex: 1;
+            }
+
+            .profile-info {
+                display: none;
+            }
+
+            .content {
+                padding: 1rem;
+            }
+
+            .welcome-title {
+                font-size: 1.5rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .cards-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .quick-actions-row {
+                flex-direction: column;
+            }
+
+            .quick-action-btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: var(--dark-surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1rem 1.5rem;
+            box-shadow: var(--shadow-lg);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            transform: translateY(150%);
+            transition: transform 0.3s ease;
+            z-index: 1002;
+        }
+
+        .toast.show {
+            transform: translateY(0);
+        }
+
+        .toast-icon {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .toast-icon.success {
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--success);
+        }
+
+        .toast-icon.error {
+            background: rgba(239, 68, 68, 0.15);
+            color: var(--error);
+        }
+
+        .toast-icon.info {
+            background: rgba(139, 127, 255, 0.15);
+            color: var(--primary);
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-in {
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        /* Page Transitions */
+        .page-content {
+            display: none;
+        }
+
+        .page-content.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 3rem 2rem;
+            color: var(--text-secondary);
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        .empty-state h3 {
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+
+        /* Status Badges */
+        .status-badge {
+            padding: 0.35rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .status-pending {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--warning);
+        }
+
+        .status-confirmed {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+        }
+
+        .status-completed {
+            background: rgba(59, 130, 246, 0.1);
+            color: #3B82F6;
+        }
+
+        .status-cancelled {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--error);
+        }
+
+        /* Calendar */
+        .calendar-widget {
+            background: var(--dark-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+        }
+
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 0.5rem;
+        }
+
+        .calendar-day {
+            text-align: center;
+            padding: 0.5rem;
+            border-radius: 6px;
+            font-size: 0.9rem;
+        }
+
+        .calendar-day.weekday {
+            font-weight: 600;
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+        }
+
+        .calendar-day.today {
+            background: var(--mentor-gradient);
+            color: white;
+        }
+
+        .calendar-day.has-session {
+            background: rgba(139, 127, 255, 0.1);
+            border: 1px solid var(--primary);
+        }
+
+        /* Earnings Card */
+        .earnings-card {
+            background: var(--dark-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+        }
+
+        .earnings-amount {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            background: var(--mentor-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Mentor Profile */
+        .profile-header {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .profile-avatar-large {
+            width: 100px;
+            height: 100px;
+            border-radius: 20px;
+            background: var(--mentor-gradient);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: white;
+        }
+
+        .profile-info-large {
+            flex: 1;
+        }
+
+        .profile-name-large {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .profile-title-large {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+        }
+
+        .profile-company-large {
+            font-size: 1rem;
+            color: var(--mentor-accent);
+            font-weight: 500;
+        }
+
+        /* Availability Settings */
+        .availability-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .availability-day {
+            background: var(--dark-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1rem;
+        }
+
+        .day-header {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            text-align: center;
+        }
+
+        .time-slots {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .time-slot {
+            padding: 0.5rem;
+            background: rgba(139, 127, 255, 0.05);
+            border-radius: 4px;
+            font-size: 0.8rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .time-slot:hover {
+            background: rgba(139, 127, 255, 0.1);
+        }
+
+        .time-slot.active {
+            background: var(--mentor-gradient);
+            color: white;
+        }
+
+        /* Rating Stars */
+        .rating-stars {
+            display: inline-flex;
+            gap: 0.1rem;
+        }
+
+        .rating-stars i {
+            color: #FFD700;
+            font-size: 0.9rem;
+        }
+
+        /* Expertise Tags */
+        .expertise-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin: 1rem 0;
+        }
+
+        .expertise-tag {
+            padding: 0.5rem 1rem;
+            background: rgba(139, 127, 255, 0.1);
+            border-radius: 20px;
+            font-size: 0.85rem;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        .expertise-tag i {
+            font-size: 0.7rem;
+        }
+    </style>
+</head>
+<body data-theme="dark">
+    <!-- Background Bubbles -->
+    <div class="bubbles">
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+    </div>
+
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <i class="fas fa-user-tie"></i>
+                    <span>NavMenta</span>
+                </div>
+                <button class="icon-btn" id="closeSidebar" style="display: none;">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <nav class="nav-section">
+                <div class="nav-label">Mentor Dashboard</div>
+                <a href="#" class="nav-item active" data-page="dashboard">
+                    <i class="fas fa-home"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="#" class="nav-item" data-page="sessions">
+                    <i class="fas fa-calendar-check"></i>
+                    <span>Sessions</span>
+                    <span class="nav-badge" id="sessionsCount">5</span>
+                </a>
+                <a href="#" class="nav-item" data-page="requests">
+                    <i class="fas fa-user-clock"></i>
+                    <span>Requests</span>
+                    <span class="nav-badge" id="requestsCount">3</span>
+                </a>
+                <a href="#" class="nav-item" data-page="mentees">
+                    <i class="fas fa-user-graduate"></i>
+                    <span>My Mentees</span>
+                </a>
+            </nav>
+
+            <nav class="nav-section">
+                <div class="nav-label">Profile & Earnings</div>
+                <a href="#" class="nav-item" data-page="profile">
+                    <i class="fas fa-user-circle"></i>
+                    <span>Profile</span>
+                </a>
+                <a href="#" class="nav-item" data-page="earnings">
+                    <i class="fas fa-wallet"></i>
+                    <span>Earnings</span>
+                </a>
+                <a href="#" class="nav-item" data-page="availability">
+                    <i class="fas fa-clock"></i>
+                    <span>Availability</span>
+                </a>
+                <a href="#" class="nav-item" data-page="analytics">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Analytics</span>
+                </a>
+            </nav>
+
+            <nav class="nav-section">
+                <div class="nav-label">Settings</div>
+                <a href="#" class="nav-item" data-page="notifications">
+                    <i class="fas fa-bell"></i>
+                    <span>Notifications</span>
+                    <span class="nav-badge" id="notificationCount">3</span>
+                </a>
+                <a href="#" class="nav-item" data-page="settings">
+                    <i class="fas fa-cog"></i>
+                    <span>Settings</span>
+                </a>
+            </nav>
+
+            <div class="nav-section" style="margin-top: auto; padding-bottom: 2rem;">
+                <a href="#" class="nav-item" id="logoutBtn">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Logout</span>
+                </a>
+            </div>
+        </aside>
+
+        <!-- Main Content Wrapper -->
+        <div class="main-wrapper" id="mainWrapper">
+            <!-- Topbar -->
+            <header class="topbar">
+                <div class="topbar-left">
+                    <button class="menu-toggle" id="menuToggle">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <div class="search-bar">
+                        <i class="fas fa-search"></i>
+                        <input type="text" placeholder="Search mentees, sessions..." id="searchInput">
+                    </div>
+                </div>
+
+                <div class="topbar-right">
+                    <div class="theme-toggle-top">
+                        <button class="icon-btn" id="themeToggle">
+                            <i class="fas fa-moon"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="notification-wrapper" style="position: relative;">
+                        <button class="icon-btn" id="notificationBtn">
+                            <i class="fas fa-bell"></i>
+                            <span class="badge" id="notificationBadge">5</span>
+                        </button>
+                        <div class="notification-dropdown" id="notificationDropdown">
+                            <div class="notification-header">
+                                <h4>Notifications</h4>
+                                <button class="btn btn-outline" id="markAllRead" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;">Mark all read</button>
+                            </div>
+                            <div class="notification-list" id="notificationList">
+                                <!-- Notifications loaded dynamically -->
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="profile-wrapper" style="position: relative;">
+                        <button class="profile-btn" id="profileBtn">
+                            <div class="profile-avatar">SR</div>
+                            <div class="profile-info">
+                                <div class="profile-name">Sarah Rodriguez</div>
+                                <div class="profile-role">Senior Mentor</div>
+                            </div>
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                        <div class="profile-dropdown" id="profileDropdown">
+                            <div class="dropdown-header">
+                                <div class="profile-avatar" style="width: 48px; height: 48px;">SR</div>
+                                <div>
+                                    <div class="profile-name" style="font-size: 1rem;">Sarah Rodriguez</div>
+                                    <div class="profile-role" style="font-size: 0.85rem;">Senior Engineering Manager</div>
+                                </div>
+                            </div>
+                            <div class="dropdown-menu">
+                                <a href="#" class="dropdown-item" data-page="profile">
+                                    <i class="fas fa-user"></i>
+                                    <span>My Profile</span>
+                                </a>
+                                <a href="#" class="dropdown-item" data-page="earnings">
+                                    <i class="fas fa-wallet"></i>
+                                    <span>Earnings</span>
+                                </a>
+                                <a href="#" class="dropdown-item" data-page="availability">
+                                    <i class="fas fa-clock"></i>
+                                    <span>Availability</span>
+                                </a>
+                                <div class="dropdown-divider"></div>
+                                <a href="#" class="dropdown-item" id="logoutDropdownBtn">
+                                    <i class="fas fa-sign-out-alt"></i>
+                                    <span>Logout</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Main Content Area -->
+            <div class="content" id="contentArea">
+                <!-- Dashboard Page (Default) -->
+                <div class="page-content active" id="dashboardPage">
+                    <!-- Welcome Banner -->
+                    <div class="welcome-banner animate-in">
+                        <div class="welcome-content">
+                            <h1 class="welcome-title">Welcome back, Sarah! 👋</h1>
+                            <p class="welcome-text">You have 3 sessions today and 5 pending mentorship requests. Your overall rating is 4.8/5!</p>
+                            <div class="quick-actions-row">
+                                <button class="quick-action-btn" data-page="sessions">
+                                    <i class="fas fa-calendar-check"></i>
+                                    View Today's Sessions
+                                </button>
+                                <button class="quick-action-btn" data-page="requests">
+                                    <i class="fas fa-user-clock"></i>
+                                    Review Requests
+                                </button>
+                                <button class="quick-action-btn" id="setAvailability">
+                                    <i class="fas fa-clock"></i>
+                                    Set Availability
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Stats Grid -->
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-header">
+                                <div class="stat-icon mentor">
+                                    <i class="fas fa-calendar-check"></i>
+                                </div>
+                                <div class="stat-change positive">
+                                    <i class="fas fa-arrow-up"></i> 15%
+                                </div>
+                            </div>
+                            <div class="stat-value">24</div>
+                            <div class="stat-label">Sessions This Month</div>
+                        </div>
+
+                        <div class="stat-card">
+                            <div class="stat-header">
+                                <div class="stat-icon purple">
+                                    <i class="fas fa-user-graduate"></i>
+                                </div>
+                                <div class="stat-change positive">
+                                    <i class="fas fa-arrow-up"></i> 8%
+                                </div>
+                            </div>
+                            <div class="stat-value">156</div>
+                            <div class="stat-label">Total Mentees</div>
+                        </div>
+
+                        <div class="stat-card">
+                            <div class="stat-header">
+                                <div class="stat-icon green">
+                                    <i class="fas fa-star"></i>
+                                </div>
+                                <div class="stat-change positive">
+                                    <i class="fas fa-arrow-up"></i> 0.2%
+                                </div>
+                            </div>
+                            <div class="stat-value">4.8</div>
+                            <div class="stat-label">Average Rating</div>
+                        </div>
+
+                        <div class="stat-card">
+                            <div class="stat-header">
+                                <div class="stat-icon orange">
+                                    <i class="fas fa-wallet"></i>
+                                </div>
+                                <div class="stat-change positive">
+                                    <i class="fas fa-arrow-up"></i> 25%
+                                </div>
+                            </div>
+                            <div class="stat-value">$3,240</div>
+                            <div class="stat-label">Monthly Earnings</div>
+                        </div>
+                    </div>
+
+                    <!-- Today's Sessions Section -->
+                    <div class="section">
+                        <div class="section-header">
+                            <h2 class="section-title">Today's Sessions</h2>
+                            <div class="section-actions">
+                                <button class="btn btn-outline" data-page="sessions">
+                                    View All
+                                </button>
+                                <button class="btn btn-primary" id="newSessionBtn">
+                                    <i class="fas fa-plus"></i>
+                                    Schedule Session
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="cards-grid" id="todaysSessions">
+                            <!-- Session Cards loaded dynamically -->
+                        </div>
+                    </div>
+
+                    <!-- Recent Mentee Requests Section -->
+                    <div class="section">
+                        <div class="section-header">
+                            <h2 class="section-title">Recent Mentee Requests</h2>
+                            <div class="section-actions">
+                                <button class="btn btn-outline" data-page="requests">View All</button>
+                            </div>
+                        </div>
+
+                        <div class="cards-grid" id="recentRequests">
+                            <!-- Request Cards loaded dynamically -->
+                        </div>
+                    </div>
+
+                    <!-- Quick Calendar -->
+                    <div class="section">
+                        <div class="section-header">
+                            <h2 class="section-title">This Week</h2>
+                            <div class="section-actions">
+                                <button class="btn btn-outline" data-page="availability">
+                                    <i class="fas fa-cog"></i>
+                                    Edit Availability
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="calendar-widget">
+                            <div class="calendar-header">
+                                <h3>October 2024</h3>
+                                <div>
+                                    <button class="icon-btn">
+                                        <i class="fas fa-chevron-left"></i>
+                                    </button>
+                                    <button class="icon-btn">
+                                        <i class="fas fa-chevron-right"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="calendar-grid">
+                                <div class="calendar-day weekday">Mon</div>
+                                <div class="calendar-day weekday">Tue</div>
+                                <div class="calendar-day weekday">Wed</div>
+                                <div class="calendar-day weekday">Thu</div>
+                                <div class="calendar-day weekday">Fri</div>
+                                <div class="calendar-day weekday">Sat</div>
+                                <div class="calendar-day weekday">Sun</div>
+                                
+                                <!-- Calendar days would be populated dynamically -->
+                                <div class="calendar-day">28</div>
+                                <div class="calendar-day">29</div>
+                                <div class="calendar-day">30</div>
+                                <div class="calendar-day has-session">1</div>
+                                <div class="calendar-day has-session">2</div>
+                                <div class="calendar-day today">3</div>
+                                <div class="calendar-day">4</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sessions Page -->
+                <div class="page-content" id="sessionsPage">
+                    <div class="section-header">
+                        <h2 class="section-title">Sessions</h2>
+                        <div class="section-actions">
+                            <button class="btn btn-outline" id="filterSessions">
+                                <i class="fas fa-filter"></i>
+                                Filter
+                            </button>
+                            <button class="btn btn-primary" id="newSession">
+                                <i class="fas fa-plus"></i>
+                                Schedule Session
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="cards-grid" id="allSessionsGrid">
+                        <!-- All sessions loaded dynamically -->
+                    </div>
+                </div>
+
+                <!-- Requests Page -->
+                <div class="page-content" id="requestsPage">
+                    <div class="section-header">
+                        <h2 class="section-title">Mentee Requests</h2>
+                        <div class="section-actions">
+                            <button class="btn btn-primary" id="refreshRequests">
+                                <i class="fas fa-sync"></i>
+                                Refresh
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="cards-grid" id="allRequestsGrid">
+                        <!-- All requests loaded dynamically -->
+                    </div>
+                </div>
+
+                <!-- Mentees Page -->
+                <div class="page-content" id="menteesPage">
+                    <div class="section-header">
+                        <h2 class="section-title">My Mentees</h2>
+                        <div class="section-actions">
+                            <button class="btn btn-outline" id="exportMentees">
+                                <i class="fas fa-download"></i>
+                                Export List
+                            </button>
+                            <button class="btn btn-primary" id="sendMessageAll">
+                                <i class="fas fa-envelope"></i>
+                                Message All
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="cards-grid" id="menteesGrid">
+                        <!-- Mentee Cards loaded dynamically -->
+                    </div>
+                </div>
+
+                <!-- Profile Page -->
+                <div class="page-content" id="profilePage">
+                    <div class="profile-header">
+                        <div class="profile-avatar-large">SR</div>
+                        <div class="profile-info-large">
+                            <h1 class="profile-name-large">Sarah Rodriguez</h1>
+                            <div class="profile-title-large">Senior Engineering Manager</div>
+                            <div class="profile-company-large">Google</div>
+                            <div class="rating-stars">
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star-half-alt"></i>
+                                <span style="margin-left: 0.5rem; color: var(--text-secondary);">4.8 (156 reviews)</span>
+                            </div>
+                        </div>
+                        <button class="btn btn-primary" id="editProfile">
+                            <i class="fas fa-edit"></i>
+                            Edit Profile
+                        </button>
+                    </div>
+
+                    <div class="section">
+                        <h2 class="section-title">About Me</h2>
+                        <div class="progress-card">
+                            <p style="color: var(--text-secondary); line-height: 1.6; margin-bottom: 1.5rem;">
+                                10+ years of experience in frontend architecture and team leadership at Google. 
+                                Specialized in React, TypeScript, and scalable system design. Passionate about 
+                                mentoring the next generation of developers and helping them navigate their 
+                                career paths in tech.
+                            </p>
+                            
+                            <div class="section">
+                                <h3 class="section-title" style="font-size: 1.1rem;">Areas of Expertise</h3>
+                                <div class="expertise-tags">
+                                    <span class="expertise-tag">
+                                        <i class="fab fa-react"></i> React
+                                    </span>
+                                    <span class="expertise-tag">
+                                        <i class="fab fa-js"></i> TypeScript
+                                    </span>
+                                    <span class="expertise-tag">
+                                        <i class="fas fa-sitemap"></i> System Design
+                                    </span>
+                                    <span class="expertise-tag">
+                                        <i class="fas fa-users"></i> Team Leadership
+                                    </span>
+                                    <span class="expertise-tag">
+                                        <i class="fas fa-chart-line"></i> Career Growth
+                                    </span>
+                                    <span class="expertise-tag">
+                                        <i class="fas fa-comments"></i> Interview Prep
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div class="section" style="margin-top: 2rem;">
+                                <h3 class="section-title" style="font-size: 1.1rem;">Mentoring Statistics</h3>
+                                <div class="progress-item">
+                                    <div class="progress-header">
+                                        <span class="progress-label">Sessions Completed</span>
+                                        <span class="progress-value">856</span>
+                                    </div>
+                                    <div class="progress-bar-container">
+                                        <div class="progress-bar" style="width: 85%"></div>
+                                    </div>
+                                </div>
+
+                                <div class="progress-item">
+                                    <div class="progress-header">
+                                        <span class="progress-label">Mentee Satisfaction</span>
+                                        <span class="progress-value">96%</span>
+                                    </div>
+                                    <div class="progress-bar-container">
+                                        <div class="progress-bar" style="width: 96%"></div>
+                                    </div>
+                                </div>
+
+                                <div class="progress-item">
+                                    <div class="progress-header">
+                                        <span class="progress-label">Response Time</span>
+                                        <span class="progress-value">2.3 hrs</span>
+                                    </div>
+                                    <div class="progress-bar-container">
+                                        <div class="progress-bar" style="width: 90%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Earnings Page -->
+                <div class="page-content" id="earningsPage">
+                    <div class="section-header">
+                        <h2 class="section-title">Earnings</h2>
+                        <div class="section-actions">
+                            <button class="btn btn-outline" id="withdrawEarnings">
+                                <i class="fas fa-money-check-alt"></i>
+                                Withdraw
+                            </button>
+                            <button class="btn btn-primary" id="exportEarnings">
+                                <i class="fas fa-file-export"></i>
+                                Export Report
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="earnings-card" style="margin-bottom: 2rem;">
+                        <div class="earnings-amount">$12,850</div>
+                        <div class="stat-label">Total Earnings (All Time)</div>
+                    </div>
+
+                    <div class="stats-grid" style="margin-bottom: 2rem;">
+                        <div class="stat-card">
+                            <div class="stat-header">
+                                <div class="stat-icon orange">
+                                    <i class="fas fa-wallet"></i>
+                                </div>
+                                <div class="stat-change positive">
+                                    <i class="fas fa-arrow-up"></i> 15%
+                                </div>
+                            </div>
+                            <div class="stat-value">$3,240</div>
+                            <div class="stat-label">This Month</div>
+                        </div>
+
+                        <div class="stat-card">
+                            <div class="stat-header">
+                                <div class="stat-icon green">
+                                    <i class="fas fa-calendar"></i>
+                                </div>
+                                <div class="stat-change positive">
+                                    <i class="fas fa-arrow-up"></i> 8%
+                                </div>
+                            </div>
+                            <div class="stat-value">$1,120</div>
+                            <div class="stat-label">Last Week</div>
+                        </div>
+
+                        <div class="stat-card">
+                            <div class="stat-header">
+                                <div class="stat-icon purple">
+                                    <i class="fas fa-clock"></i>
+                                </div>
+                                <div class="stat-change positive">
+                                    <i class="fas fa-arrow-up"></i> 12%
+                                </div>
+                            </div>
+                            <div class="stat-value">24</div>
+                            <div class="stat-label">Paid Sessions</div>
+                        </div>
+                    </div>
+
+                    <div class="section">
+                        <h2 class="section-title">Recent Transactions</h2>
+                        <div class="progress-card">
+                            <div style="overflow-x: auto;">
+                                <table style="width: 100%; border-collapse: collapse;">
+                                    <thead>
+                                        <tr style="border-bottom: 1px solid var(--border);">
+                                            <th style="padding: 1rem 0.5rem; text-align: left; color: var(--text-secondary); font-weight: 500;">Date</th>
+                                            <th style="padding: 1rem 0.5rem; text-align: left; color: var(--text-secondary); font-weight: 500;">Mentee</th>
+                                            <th style="padding: 1rem 0.5rem; text-align: left; color: var(--text-secondary); font-weight: 500;">Session</th>
+                                            <th style="padding: 1rem 0.5rem; text-align: left; color: var(--text-secondary); font-weight: 500;">Duration</th>
+                                            <th style="padding: 1rem 0.5rem; text-align: left; color: var(--text-secondary); font-weight: 500;">Amount</th>
+                                            <th style="padding: 1rem 0.5rem; text-align: left; color: var(--text-secondary); font-weight: 500;">Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr style="border-bottom: 1px solid var(--border);">
+                                            <td style="padding: 1rem 0.5rem;">Oct 3, 2024</td>
+                                            <td style="padding: 1rem 0.5rem;">John Smith</td>
+                                            <td style="padding: 1rem 0.5rem;">Career Strategy</td>
+                                            <td style="padding: 1rem 0.5rem;">60 min</td>
+                                            <td style="padding: 1rem 0.5rem; font-weight: 600;">$120</td>
+                                            <td style="padding: 1rem 0.5rem;"><span class="status-badge status-confirmed">Paid</span></td>
+                                        </tr>
+                                        <tr style="border-bottom: 1px solid var(--border);">
+                                            <td style="padding: 1rem 0.5rem;">Oct 2, 2024</td>
+                                            <td style="padding: 1rem 0.5rem;">Emma Wilson</td>
+                                            <td style="padding: 1rem 0.5rem;">Tech Interview Prep</td>
+                                            <td style="padding: 1rem 0.5rem;">90 min</td>
+                                            <td style="padding: 1rem 0.5rem; font-weight: 600;">$180</td>
+                                            <td style="padding: 1rem 0.5rem;"><span class="status-badge status-confirmed">Paid</span></td>
+                                        </tr>
+                                        <tr>
+                                            <td style="padding: 1rem 0.5rem;">Oct 1, 2024</td>
+                                            <td style="padding: 1rem 0.5rem;">Michael Chen</td>
+                                            <td style="padding: 1rem 0.5rem;">System Design</td>
+                                            <td style="padding: 1rem 0.5rem;">120 min</td>
+                                            <td style="padding: 1rem 0.5rem; font-weight: 600;">$240</td>
+                                            <td style="padding: 1rem 0.5rem;"><span class="status-badge status-pending">Pending</span></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Availability Page -->
+                <div class="page-content" id="availabilityPage">
+                    <div class="section-header">
+                        <h2 class="section-title">Availability Settings</h2>
+                        <div class="section-actions">
+                            <button class="btn btn-outline" id="copyPreviousWeek">
+                                <i class="fas fa-copy"></i>
+                                Copy Previous Week
+                            </button>
+                            <button class="btn btn-primary" id="saveAvailability">
+                                <i class="fas fa-save"></i>
+                                Save Changes
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="availability-grid">
+                        <div class="availability-day">
+                            <div class="day-header">Monday</div>
+                            <div class="time-slots">
+                                <div class="time-slot active">9:00 AM</div>
+                                <div class="time-slot">10:00 AM</div>
+                                <div class="time-slot active">11:00 AM</div>
+                                <div class="time-slot">2:00 PM</div>
+                                <div class="time-slot active">3:00 PM</div>
+                                <div class="time-slot active">4:00 PM</div>
+                            </div>
+                        </div>
+                        <div class="availability-day">
+                            <div class="day-header">Tuesday</div>
+                            <div class="time-slots">
+                                <div class="time-slot">9:00 AM</div>
+                                <div class="time-slot active">10:00 AM</div>
+                                <div class="time-slot active">11:00 AM</div>
+                                <div class="time-slot">2:00 PM</div>
+                                <div class="time-slot active">3:00 PM</div>
+                                <div class="time-slot">4:00 PM</div>
+                            </div>
+                        </div>
+                        <div class="availability-day">
+                            <div class="day-header">Wednesday</div>
+                            <div class="time-slots">
+                                <div class="time-slot active">9:00 AM</div>
+                                <div class="time-slot active">10:00 AM</div>
+                                <div class="time-slot active">11:00 AM</div>
+                                <div class="time-slot active">2:00 PM</div>
+                                <div class="time-slot active">3:00 PM</div>
+                                <div class="time-slot active">4:00 PM</div>
+                            </div>
+                        </div>
+                        <div class="availability-day">
+                            <div class="day-header">Thursday</div>
+                            <div class="time-slots">
+                                <div class="time-slot active">9:00 AM</div>
+                                <div class="time-slot">10:00 AM</div>
+                                <div class="time-slot active">11:00 AM</div>
+                                <div class="time-slot">2:00 PM</div>
+                                <div class="time-slot">3:00 PM</div>
+                                <div class="time-slot active">4:00 PM</div>
+                            </div>
+                        </div>
+                        <div class="availability-day">
+                            <div class="day-header">Friday</div>
+                            <div class="time-slots">
+                                <div class="time-slot active">9:00 AM</div>
+                                <div class="time-slot active">10:00 AM</div>
+                                <div class="time-slot">11:00 AM</div>
+                                <div class="time-slot">2:00 PM</div>
+                                <div class="time-slot active">3:00 PM</div>
+                                <div class="time-slot">4:00 PM</div>
+                            </div>
+                        </div>
+                        <div class="availability-day">
+                            <div class="day-header">Saturday</div>
+                            <div class="time-slots">
+                                <div class="time-slot">10:00 AM</div>
+                                <div class="time-slot">11:00 AM</div>
+                                <div class="time-slot">2:00 PM</div>
+                            </div>
+                        </div>
+                        <div class="availability-day">
+                            <div class="day-header">Sunday</div>
+                            <div class="time-slots">
+                                <div class="time-slot">Unavailable</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="section" style="margin-top: 2rem;">
+                        <h2 class="section-title">Session Settings</h2>
+                        <div class="progress-card">
+                            <div class="form-group">
+                                <label class="form-label">Session Duration</label>
+                                <select class="form-control" id="sessionDuration">
+                                    <option value="30">30 minutes</option>
+                                    <option value="60" selected>60 minutes</option>
+                                    <option value="90">90 minutes</option>
+                                    <option value="120">120 minutes</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Session Rate (per hour)</label>
+                                <input type="number" class="form-control" id="sessionRate" value="120" placeholder="Enter rate per hour">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Buffer Time Between Sessions</label>
+                                <select class="form-control" id="bufferTime">
+                                    <option value="0">No buffer</option>
+                                    <option value="15" selected>15 minutes</option>
+                                    <option value="30">30 minutes</option>
+                                    <option value="60">60 minutes</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Advance Booking (days in advance)</label>
+                                <select class="form-control" id="advanceBooking">
+                                    <option value="1">1 day</option>
+                                    <option value="2">2 days</option>
+                                    <option value="7" selected>7 days</option>
+                                    <option value="14">14 days</option>
+                                    <option value="30">30 days</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Analytics Page -->
+                <div class="page-content" id="analyticsPage">
+                    <div class="section-header">
+                        <h2 class="section-title">Analytics</h2>
+                        <div class="section-actions">
+                            <button class="btn btn-outline" id="exportAnalytics">
+                                <i class="fas fa-download"></i>
+                                Export Data
+                            </button>
+                        </div>
+                    </div>
+                    <div class="stats-grid" style="margin-bottom: 2rem;">
+                        <div class="stat-card">
+                            <div class="stat-header">
+                                <div class="stat-icon purple">
+                                    <i class="fas fa-chart-line"></i>
+                                </div>
+                                <div class="stat-change positive">
+                                    <i class="fas fa-arrow-up"></i> 15%
+                                </div>
+                            </div>
+                            <div class="stat-value">96%</div>
+                            <div class="stat-label">Mentee Satisfaction</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-header">
+                                <div class="stat-icon pink">
+                                    <i class="fas fa-clock"></i>
+                                </div>
+                                <div class="stat-change positive">
+                                    <i class="fas fa-arrow-up"></i> 23%
+                                </div>
+                            </div>
+                            <div class="stat-value">2.3 hrs</div>
+                            <div class="stat-label">Avg Response Time</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-header">
+                                <div class="stat-icon green">
+                                    <i class="fas fa-calendar-check"></i>
+                                </div>
+                                <div class="stat-change positive">
+                                    <i class="fas fa-arrow-up"></i> 12%
+                                </div>
+                            </div>
+                            <div class="stat-value">88%</div>
+                            <div class="stat-label">Session Completion Rate</div>
+                        </div>
+                    </div>
+                    <div class="section">
+                        <h2 class="section-title">Monthly Performance</h2>
+                        <div class="progress-card">
+                            <div style="text-align: center; padding: 3rem 2rem; color: var(--text-secondary);">
+                                <i class="fas fa-chart-bar" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.5;"></i>
+                                <h3>Performance Analytics</h3>
+                                <p>Visualizations showing monthly sessions, earnings, and ratings trends</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Settings Page -->
+                <div class="page-content" id="settingsPage">
+                    <div class="section-header">
+                        <h2 class="section-title">Settings</h2>
+                        <div class="section-actions">
+                            <button class="btn btn-primary" id="saveSettings">
+                                <i class="fas fa-save"></i>
+                                Save Changes
+                            </button>
+                        </div>
+                    </div>
+                    <div class="progress-card">
+                        <h3 style="margin-bottom: 1.5rem;">Notification Settings</h3>
+                        <div class="form-group">
+                            <label class="form-label" style="display: flex; justify-content: space-between; align-items: center;">
+                                <span>Session Reminders</span>
+                                <label class="switch">
+                                    <input type="checkbox" id="sessionReminders" checked>
+                                    <span class="slider"></span>
+                                </label>
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" style="display: flex; justify-content: space-between; align-items: center;">
+                                <span>New Request Notifications</span>
+                                <label class="switch">
+                                    <input type="checkbox" id="requestNotifications" checked>
+                                    <span class="slider"></span>
+                                </label>
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" style="display: flex; justify-content: space-between; align-items: center;">
+                                <span>Payment Notifications</span>
+                                <label class="switch">
+                                    <input type="checkbox" id="paymentNotifications" checked>
+                                    <span class="slider"></span>
+                                </label>
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" style="display: flex; justify-content: space-between; align-items: center;">
+                                <span>Review Notifications</span>
+                                <label class="switch">
+                                    <input type="checkbox" id="reviewNotifications" checked>
+                                    <span class="slider"></span>
+                                </label>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Other Pages Placeholder -->
+                <div class="page-content" id="otherPages">
+                    <div class="empty-state">
+                        <i class="fas fa-cogs"></i>
+                        <h3>Page Under Construction</h3>
+                        <p>This page is currently being developed. Check back soon!</p>
+                        <button class="btn btn-primary" data-page="dashboard" style="margin-top: 1rem;">
+                            <i class="fas fa-arrow-left"></i>
+                            Back to Dashboard
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Toast Notification -->
+        <div class="toast" id="toast">
+            <div class="toast-icon success">
+                <i class="fas fa-check"></i>
+            </div>
+            <div id="toastMessage">Welcome to NavMenta Mentor Dashboard!</div>
+        </div>
+
+        <!-- Session Details Modal -->
+        <div class="modal" id="sessionModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 class="modal-title">Session Details</h3>
+                    <button class="modal-close" id="closeSessionModal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="session-details">
+                        <div class="detail-row">
+                            <span class="detail-label">Mentee:</span>
+                            <span class="detail-value" id="sessionMenteeName">John Smith</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Date & Time:</span>
+                            <span class="detail-value" id="sessionDateTime">Today, 3:00 PM - 4:00 PM</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Duration:</span>
+                            <span class="detail-value" id="sessionDuration">60 minutes</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Topic:</span>
+                            <span class="detail-value" id="sessionTopic">Career Strategy</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Status:</span>
+                            <span class="detail-value"><span class="status-badge status-confirmed">Confirmed</span></span>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Session Notes</label>
+                        <textarea class="form-control form-textarea" placeholder="Add notes about this session..." id="sessionNotes"></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Meeting Link</label>
+                        <input type="text" class="form-control" placeholder="https://meet.google.com/abc-defg-hij" id="meetingLink">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-outline" id="cancelSession">Cancel Session</button>
+                    <button class="btn btn-primary" id="saveSession">Save Changes</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Request Response Modal -->
+        <div class="modal" id="requestModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 class="modal-title">Respond to Request</h3>
+                    <button class="modal-close" id="closeRequestModal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="session-details">
+                        <div class="detail-row">
+                            <span class="detail-label">From:</span>
+                            <span class="detail-value" id="requestMenteeName">Emma Wilson</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Requested Topic:</span>
+                            <span class="detail-value" id="requestTopic">Tech Interview Preparation</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Experience Level:</span>
+                            <span class="detail-value" id="requestLevel">Mid-Level Developer</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Message:</span>
+                            <span class="detail-value" id="requestMessage" style="font-style: italic;">"I need help preparing for a senior frontend role at FAANG companies"</span>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Your Response</label>
+                        <select class="form-control" id="requestResponse">
+                            <option value="">Select response</option>
+                            <option value="accept">Accept Request</option>
+                            <option value="decline">Decline Request</option>
+                            <option value="reschedule">Suggest Alternative Time</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Message to Mentee</label>
+                        <textarea class="form-control form-textarea" placeholder="Add a personal message..." id="responseMessage"></textarea>
+                    </div>
+                    
+                    <div class="form-group" id="suggestedTimeGroup" style="display: none;">
+                        <label class="form-label">Suggested Time</label>
+                        <input type="datetime-local" class="form-control" id="suggestedTime">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-outline" id="closeRequest">Close</button>
+                    <button class="btn btn-primary" id="submitResponse">Submit Response</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ============================
+        // STATE MANAGEMENT
+        // ============================
+        const state = {
+            currentPage: 'dashboard',
+            theme: 'dark',
+            notifications: [
+                { id: 1, title: 'New Session Request', text: 'Emma Wilson requested a session on Tech Interview Prep', time: '10 min ago', read: false, icon: 'fas fa-user-clock' },
+                { id: 2, title: 'Session Starting Soon', text: 'Session with John Smith starts in 30 minutes', time: '1 hour ago', read: false, icon: 'fas fa-calendar-check' },
+                { id: 3, title: 'Payment Received', text: '$120 payment received for session with Michael Chen', time: '3 hours ago', read: true, icon: 'fas fa-wallet' },
+                { id: 4, title: 'New Review', text: 'You received a 5-star review from Sarah Johnson', time: '1 day ago', read: true, icon: 'fas fa-star' },
+                { id: 5, title: 'Profile Viewed', text: '15 mentees viewed your profile this week', time: '2 days ago', read: true, icon: 'fas fa-eye' }
+            ],
+            sessions: [
+                { id: 1, mentee: 'John Smith', avatar: 'JS', time: 'Today, 3:00 PM - 4:00 PM', topic: 'Career Strategy', status: 'confirmed', rating: null, notes: '' },
+                { id: 2, mentee: 'Emma Wilson', avatar: 'EW', time: 'Tomorrow, 10:00 AM - 11:30 AM', topic: 'Tech Interview Prep', status: 'confirmed', rating: null, notes: '' },
+                { id: 3, mentee: 'Michael Chen', avatar: 'MC', time: 'Oct 5, 2:00 PM - 4:00 PM', topic: 'System Design', status: 'pending', rating: null, notes: '' },
+                { id: 4, mentee: 'Sarah Johnson', avatar: 'SJ', time: 'Oct 6, 11:00 AM - 12:00 PM', topic: 'Leadership Skills', status: 'confirmed', rating: 5, notes: 'Great session on team management' },
+                { id: 5, mentee: 'David Lee', avatar: 'DL', time: 'Oct 7, 4:00 PM - 5:00 PM', topic: 'React Advanced Patterns', status: 'confirmed', rating: 4, notes: 'Needs more practice with hooks' }
+            ],
+            requests: [
+                { id: 1, mentee: 'Alex Turner', avatar: 'AT', topic: 'Career Transition', level: 'Mid-Level', message: 'Looking to transition from backend to full-stack development', status: 'pending', time: '2 hours ago' },
+                { id: 2, mentee: 'Priya Patel', avatar: 'PP', topic: 'Salary Negotiation', level: 'Senior', message: 'Need guidance on negotiating a senior role offer', status: 'pending', time: '1 day ago' },
+                { id: 3, mentee: 'Robert Kim', avatar: 'RK', topic: 'Startup Advice', level: 'Lead', message: 'Planning to launch a tech startup, need mentorship', status: 'pending', time: '2 days ago' }
+            ],
+            mentees: [
+                { id: 1, name: 'John Smith', avatar: 'JS', joined: '3 months ago', sessions: 12, rating: 5, lastSession: 'Today', status: 'active' },
+                { id: 2, name: 'Emma Wilson', avatar: 'EW', joined: '2 months ago', sessions: 8, rating: 5, lastSession: 'Tomorrow', status: 'active' },
+                { id: 3, name: 'Michael Chen', avatar: 'MC', joined: '1 month ago', sessions: 5, rating: 4, lastSession: 'Oct 5', status: 'active' },
+                { id: 4, name: 'Sarah Johnson', avatar: 'SJ', joined: '4 months ago', sessions: 15, rating: 5, lastSession: 'Last week', status: 'active' },
+                { id: 5, name: 'David Lee', avatar: 'DL', joined: '2 weeks ago', sessions: 2, rating: 4, lastSession: 'Oct 7', status: 'active' }
+            ],
+            settings: {
+                sessionReminders: true,
+                requestNotifications: true,
+                paymentNotifications: true,
+                reviewNotifications: true
+            }
+        };
+
+        // ============================
+        // DOM ELEMENTS
+        // ============================
+        const elements = {
+            // Navigation
+            menuToggle: document.getElementById('menuToggle'),
+            sidebar: document.getElementById('sidebar'),
+            closeSidebar: document.getElementById('closeSidebar'),
+            mainWrapper: document.getElementById('mainWrapper'),
+            
+            // Theme
+            themeToggle: document.getElementById('themeToggle'),
+            
+            // Search
+            searchInput: document.getElementById('searchInput'),
+            
+            // Notifications
+            notificationBtn: document.getElementById('notificationBtn'),
+            notificationDropdown: document.getElementById('notificationDropdown'),
+            notificationBadge: document.getElementById('notificationBadge'),
+            notificationCount: document.getElementById('notificationCount'),
+            notificationList: document.getElementById('notificationList'),
+            markAllRead: document.getElementById('markAllRead'),
+            
+            // Profile
+            profileBtn: document.getElementById('profileBtn'),
+            profileDropdown: document.getElementById('profileDropdown'),
+            
+            // Pages
+            contentArea: document.getElementById('contentArea'),
+            pageContents: document.querySelectorAll('.page-content'),
+            
+            // Dashboard elements
+            sessionsCount: document.getElementById('sessionsCount'),
+            requestsCount: document.getElementById('requestsCount'),
+            todaysSessions: document.getElementById('todaysSessions'),
+            recentRequests: document.getElementById('recentRequests'),
+            
+            // Toast
+            toast: document.getElementById('toast'),
+            toastMessage: document.getElementById('toastMessage'),
+            
+            // Modals
+            sessionModal: document.getElementById('sessionModal'),
+            closeSessionModal: document.getElementById('closeSessionModal'),
+            cancelSession: document.getElementById('cancelSession'),
+            saveSession: document.getElementById('saveSession'),
+            
+            requestModal: document.getElementById('requestModal'),
+            closeRequestModal: document.getElementById('closeRequestModal'),
+            closeRequest: document.getElementById('closeRequest'),
+            submitResponse: document.getElementById('submitResponse'),
+            
+            // Buttons
+            logoutBtn: document.getElementById('logoutBtn'),
+            logoutDropdownBtn: document.getElementById('logoutDropdownBtn'),
+            setAvailability: document.getElementById('setAvailability'),
+            newSessionBtn: document.getElementById('newSessionBtn'),
+            newSession: document.getElementById('newSession'),
+            filterSessions: document.getElementById('filterSessions'),
+            refreshRequests: document.getElementById('refreshRequests'),
+            exportMentees: document.getElementById('exportMentees'),
+            sendMessageAll: document.getElementById('sendMessageAll'),
+            editProfile: document.getElementById('editProfile'),
+            withdrawEarnings: document.getElementById('withdrawEarnings'),
+            exportEarnings: document.getElementById('exportEarnings'),
+            copyPreviousWeek: document.getElementById('copyPreviousWeek'),
+            saveAvailability: document.getElementById('saveAvailability'),
+            exportAnalytics: document.getElementById('exportAnalytics'),
+            saveSettings: document.getElementById('saveSettings'),
+            
+            // Page-specific elements
+            allSessionsGrid: document.getElementById('allSessionsGrid'),
+            allRequestsGrid: document.getElementById('allRequestsGrid'),
+            menteesGrid: document.getElementById('menteesGrid'),
+            
+            // Settings
+            sessionReminders: document.getElementById('sessionReminders'),
+            requestNotifications: document.getElementById('requestNotifications'),
+            paymentNotifications: document.getElementById('paymentNotifications'),
+            reviewNotifications: document.getElementById('reviewNotifications')
+        };
+
+        // ============================
+        // INITIALIZATION
+        // ============================
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize theme
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme) {
+                state.theme = savedTheme;
+                document.body.setAttribute('data-theme', savedTheme);
+                const icon = elements.themeToggle.querySelector('i');
+                icon.className = savedTheme === 'light' ? 'fas fa-sun' : 'fas fa-moon';
+            }
+            
+            // Load initial data
+            loadDashboardData();
+            loadNotifications();
+            updateCounts();
+            loadSettings();
+            
+            // Set up event listeners
+            setupEventListeners();
+            
+            // Show welcome message
+            setTimeout(() => {
+                showToast('Welcome to NavMenta Mentor Dashboard! 🌟', 'info');
+            }, 1000);
+        });
+
+        // ============================
+        // EVENT LISTENERS SETUP
+        // ============================
+        function setupEventListeners() {
+            // Sidebar toggle
+            elements.menuToggle?.addEventListener('click', toggleSidebar);
+            elements.closeSidebar?.addEventListener('click', toggleSidebar);
+            
+            // Theme toggle
+            elements.themeToggle.addEventListener('click', toggleTheme);
+            
+            // Navigation
+            document.querySelectorAll('.nav-item, .dropdown-item, .quick-action-btn, .btn[data-page]').forEach(item => {
+                item.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const page = item.getAttribute('data-page');
+                    if (page) navigateToPage(page);
+                    
+                    // Close sidebar on mobile
+                    if (window.innerWidth <= 768) {
+                        elements.sidebar.classList.remove('show');
+                    }
+                    
+                    // Close dropdowns
+                    elements.profileDropdown.classList.remove('show');
+                    elements.notificationDropdown.classList.remove('show');
+                });
+            });
+            
+            // Profile dropdown
+            elements.profileBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                elements.profileDropdown.classList.toggle('show');
+                elements.notificationDropdown.classList.remove('show');
+            });
+            
+            // Notifications dropdown
+            elements.notificationBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                elements.notificationDropdown.classList.toggle('show');
+                elements.profileDropdown.classList.remove('show');
+            });
+            
+            // Mark all notifications as read
+            elements.markAllRead?.addEventListener('click', markAllNotificationsAsRead);
+            
+            // Close dropdowns when clicking outside
+            document.addEventListener('click', (e) => {
+                if (!elements.profileBtn.contains(e.target) && !elements.profileDropdown.contains(e.target)) {
+                    elements.profileDropdown.classList.remove('show');
+                }
+                if (!elements.notificationBtn.contains(e.target) && !elements.notificationDropdown.contains(e.target)) {
+                    elements.notificationDropdown.classList.remove('show');
+                }
+            });
+            
+            // Search functionality
+            elements.searchInput?.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    const query = elements.searchInput.value.trim();
+                    if (query) {
+                        showToast(`Searching for: ${query}`, 'info');
+                        // In real app, would filter data based on query
+                    }
+                }
+            });
+            
+            // Set Availability button
+            elements.setAvailability?.addEventListener('click', () => {
+                navigateToPage('availability');
+            });
+            
+            // New Session buttons
+            elements.newSessionBtn?.addEventListener('click', () => {
+                showToast('Opening session scheduling form...', 'info');
+            });
+            
+            elements.newSession?.addEventListener('click', () => {
+                showToast('Opening session scheduling form...', 'info');
+            });
+            
+            // Session Modal
+            elements.closeSessionModal?.addEventListener('click', () => {
+                elements.sessionModal.classList.remove('show');
+            });
+            
+            elements.cancelSession?.addEventListener('click', () => {
+                if (confirm('Are you sure you want to cancel this session?')) {
+                    showToast('Session cancelled', 'info');
+                    elements.sessionModal.classList.remove('show');
+                }
+            });
+            
+            elements.saveSession?.addEventListener('click', () => {
+                showToast('Session details saved', 'success');
+                elements.sessionModal.classList.remove('show');
+            });
+            
+            // Request Modal
+            elements.closeRequestModal?.addEventListener('click', () => {
+                elements.requestModal.classList.remove('show');
+            });
+            
+            elements.closeRequest?.addEventListener('click', () => {
+                elements.requestModal.classList.remove('show');
+            });
+            
+            elements.submitResponse?.addEventListener('click', submitResponse);
+            
+            // Show suggested time field when reschedule is selected
+            document.getElementById('requestResponse')?.addEventListener('change', function() {
+                const suggestedTimeGroup = document.getElementById('suggestedTimeGroup');
+                if (this.value === 'reschedule') {
+                    suggestedTimeGroup.style.display = 'block';
+                } else {
+                    suggestedTimeGroup.style.display = 'none';
+                }
+            });
+            
+            // Close modals when clicking outside
+            document.addEventListener('click', (e) => {
+                if (e.target.classList.contains('modal')) {
+                    e.target.classList.remove('show');
+                }
+            });
+            
+            // Logout
+            elements.logoutBtn?.addEventListener('click', (e) => {
+                e.preventDefault();
+                handleLogout();
+            });
+            
+            elements.logoutDropdownBtn?.addEventListener('click', (e) => {
+                e.preventDefault();
+                handleLogout();
+            });
+            
+            // Settings
+            elements.saveSettings?.addEventListener('click', saveSettings);
+            
+            // Page-specific buttons
+            elements.filterSessions?.addEventListener('click', () => {
+                showToast('Opening session filters...', 'info');
+            });
+            
+            elements.refreshRequests?.addEventListener('click', () => {
+                showToast('Refreshing requests...', 'info');
+                loadRequests();
+            });
+            
+            elements.exportMentees?.addEventListener('click', () => {
+                showToast('Exporting mentee list...', 'info');
+            });
+            
+            elements.sendMessageAll?.addEventListener('click', () => {
+                showToast('Opening message composer...', 'info');
+            });
+            
+            elements.editProfile?.addEventListener('click', () => {
+                showToast('Opening profile editor...', 'info');
+            });
+            
+            elements.withdrawEarnings?.addEventListener('click', () => {
+                showToast('Opening withdrawal form...', 'info');
+            });
+            
+            elements.exportEarnings?.addEventListener('click', () => {
+                showToast('Exporting earnings report...', 'info');
+            });
+            
+            elements.copyPreviousWeek?.addEventListener('click', () => {
+                showToast('Availability copied from previous week', 'success');
+            });
+            
+            elements.saveAvailability?.addEventListener('click', () => {
+                showToast('Availability saved successfully', 'success');
+            });
+            
+            elements.exportAnalytics?.addEventListener('click', () => {
+                showToast('Exporting analytics data...', 'info');
+            });
+            
+            // Availability time slots
+            document.querySelectorAll('.time-slot').forEach(slot => {
+                slot.addEventListener('click', function() {
+                    this.classList.toggle('active');
+                });
+            });
+            
+            // Keyboard shortcuts
+            document.addEventListener('keydown', (e) => {
+                // Ctrl/Cmd + K for search
+                if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+                    e.preventDefault();
+                    elements.searchInput.focus();
+                }
+                
+                // Escape to close modals and dropdowns
+                if (e.key === 'Escape') {
+                    document.querySelectorAll('.modal.show').forEach(modal => {
+                        modal.classList.remove('show');
+                    });
+                    elements.profileDropdown.classList.remove('show');
+                    elements.notificationDropdown.classList.remove('show');
+                }
+            });
+            
+            // Responsive adjustments
+            window.addEventListener('resize', () => {
+                if (window.innerWidth > 768) {
+                    elements.sidebar.classList.remove('show');
+                }
+            });
+        }
+
+        // ============================
+        // CORE FUNCTIONS
+        // ============================
+        function toggleSidebar() {
+            elements.sidebar.classList.toggle('show');
+        }
+
+        function toggleTheme() {
+            state.theme = state.theme === 'dark' ? 'light' : 'dark';
+            document.body.setAttribute('data-theme', state.theme);
+            
+            const icon = elements.themeToggle.querySelector('i');
+            if (state.theme === 'light') {
+                icon.className = 'fas fa-sun';
+            } else {
+                icon.className = 'fas fa-moon';
+            }
+            
+            showToast(`Switched to ${state.theme} mode`, 'info');
+            localStorage.setItem('theme', state.theme);
+        }
+
+        function navigateToPage(page) {
+            // Update active nav item
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+                if (item.getAttribute('data-page') === page) {
+                    item.classList.add('active');
+                }
+            });
+            
+            // Update current page
+            state.currentPage = page;
+            
+            // Hide all pages
+            elements.pageContents.forEach(pageEl => {
+                pageEl.classList.remove('active');
+            });
+            
+            // Show target page
+            const targetPage = document.getElementById(`${page}Page`) || document.getElementById('otherPages');
+            if (targetPage) {
+                targetPage.classList.add('active');
+                
+                // Load page-specific content
+                switch(page) {
+                    case 'dashboard':
+                        loadDashboardData();
+                        break;
+                    case 'sessions':
+                        loadSessions();
+                        break;
+                    case 'requests':
+                        loadRequests();
+                        break;
+                    case 'mentees':
+                        loadMentees();
+                        break;
+                }
+                
+                showToast(`Navigating to ${page.replace('-', ' ')}...`, 'info');
+            }
+        }
+
+        function loadDashboardData() {
+            // Load today's sessions
+            loadTodaysSessions();
+            
+            // Load recent requests
+            loadRecentRequests();
+        }
+
+        function loadTodaysSessions() {
+            if (!elements.todaysSessions) return;
+            
+            const todaysSessions = state.sessions.slice(0, 3);
+            elements.todaysSessions.innerHTML = generateSessionCards(todaysSessions);
+            attachSessionCardListeners();
+        }
+
+        function loadRecentRequests() {
+            if (!elements.recentRequests) return;
+            
+            const recentRequests = state.requests.slice(0, 3);
+            elements.recentRequests.innerHTML = generateRequestCards(recentRequests);
+            attachRequestCardListeners();
+        }
+
+        function loadSessions() {
+            if (!elements.allSessionsGrid) return;
+            
+            elements.allSessionsGrid.innerHTML = generateSessionCards(state.sessions);
+            attachSessionCardListeners();
+        }
+
+        function loadRequests() {
+            if (!elements.allRequestsGrid) return;
+            
+            elements.allRequestsGrid.innerHTML = generateRequestCards(state.requests);
+            attachRequestCardListeners();
+        }
+
+        function loadMentees() {
+            if (!elements.menteesGrid) return;
+            
+            elements.menteesGrid.innerHTML = generateMenteeCards(state.mentees);
+            attachMenteeCardListeners();
+        }
+
+        function loadNotifications() {
+            if (!elements.notificationList) return;
+            
+            elements.notificationList.innerHTML = state.notifications.map(notification => `
+                <div class="notification-item ${notification.read ? '' : 'unread'}" data-notification-id="${notification.id}">
+                    <div class="notification-icon">
+                        <i class="${notification.icon}"></i>
+                    </div>
+                    <div class="notification-content">
+                        <div class="notification-title">${notification.title}</div>
+                        <div class="notification-text">${notification.text}</div>
+                        <div class="notification-time">${notification.time}</div>
+                    </div>
+                </div>
+            `).join('');
+            
+            updateNotificationBadge();
+        }
+
+        function updateNotificationBadge() {
+            const unreadCount = state.notifications.filter(n => !n.read).length;
+            if (elements.notificationBadge) {
+                elements.notificationBadge.textContent = unreadCount;
+                elements.notificationBadge.style.display = unreadCount > 0 ? 'flex' : 'none';
+            }
+            if (elements.notificationCount) {
+                elements.notificationCount.textContent = unreadCount;
+                elements.notificationCount.style.display = unreadCount > 0 ? 'flex' : 'none';
+            }
+        }
+
+        function markAllNotificationsAsRead() {
+            state.notifications.forEach(notification => {
+                notification.read = true;
+            });
+            loadNotifications();
+            showToast('All notifications marked as read', 'success');
+        }
+
+        function updateCounts() {
+            if (elements.sessionsCount) {
+                const upcomingSessions = state.sessions.filter(s => s.status === 'confirmed' || s.status === 'pending').length;
+                elements.sessionsCount.textContent = upcomingSessions;
+            }
+            if (elements.requestsCount) {
+                const pendingRequests = state.requests.filter(r => r.status === 'pending').length;
+                elements.requestsCount.textContent = pendingRequests;
+            }
+            updateNotificationBadge();
+        }
+
+        function loadSettings() {
+            if (!elements.sessionReminders) return;
+            
+            elements.sessionReminders.checked = state.settings.sessionReminders;
+            elements.requestNotifications.checked = state.settings.requestNotifications;
+            elements.paymentNotifications.checked = state.settings.paymentNotifications;
+            elements.reviewNotifications.checked = state.settings.reviewNotifications;
+        }
+
+        function saveSettings() {
+            state.settings.sessionReminders = elements.sessionReminders.checked;
+            state.settings.requestNotifications = elements.requestNotifications.checked;
+            state.settings.paymentNotifications = elements.paymentNotifications.checked;
+            state.settings.reviewNotifications = elements.reviewNotifications.checked;
+            
+            showToast('Settings saved successfully', 'success');
+        }
+
+        // ============================
+        // CARD GENERATION FUNCTIONS
+        // ============================
+        function generateSessionCards(sessions) {
+            if (sessions.length === 0) {
+                return `
+                    <div class="empty-state" style="grid-column: 1 / -1;">
+                        <i class="fas fa-calendar-times"></i>
+                        <h3>No upcoming sessions</h3>
+                        <p>Your upcoming sessions will appear here.</p>
+                    </div>
+                `;
+            }
+            
+            return sessions.map(session => {
+                let statusClass = '';
+                let statusText = '';
+                
+                switch(session.status) {
+                    case 'confirmed':
+                        statusClass = 'status-confirmed';
+                        statusText = 'Confirmed';
+                        break;
+                    case 'pending':
+                        statusClass = 'status-pending';
+                        statusText = 'Pending';
+                        break;
+                    case 'completed':
+                        statusClass = 'status-completed';
+                        statusText = 'Completed';
+                        break;
+                    case 'cancelled':
+                        statusClass = 'status-cancelled';
+                        statusText = 'Cancelled';
+                        break;
+                }
+                
+                return `
+                    <div class="session-card" data-session-id="${session.id}">
+                        <div class="card-header">
+                            <div class="card-avatar">
+                                <div class="avatar-circle">${session.avatar}</div>
+                                <div>
+                                    <div class="card-title">${session.mentee}</div>
+                                    <div class="card-subtitle">
+                                        <i class="far fa-clock"></i>
+                                        ${session.time}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-actions-top">
+                                <span class="status-badge ${statusClass}">${statusText}</span>
+                            </div>
+                        </div>
+                        <div class="card-tags">
+                            <span class="tag pink">${session.topic}</span>
+                        </div>
+                        ${session.rating ? `
+                            <div class="card-rating">
+                                ${'<i class="fas fa-star"></i>'.repeat(session.rating)}
+                                ${session.rating < 5 ? '<i class="far fa-star"></i>'.repeat(5 - session.rating) : ''}
+                            </div>
+                        ` : ''}
+                        <div class="card-footer">
+                            <div class="card-meta">
+                                <div class="card-time">
+                                    ${session.notes ? '<i class="fas fa-sticky-note"></i> Has notes' : 'No notes added'}
+                                </div>
+                            </div>
+                            <button class="btn btn-outline" data-action="view-session" data-session-id="${session.id}">
+                                View Details
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function generateRequestCards(requests) {
+            if (requests.length === 0) {
+                return `
+                    <div class="empty-state" style="grid-column: 1 / -1;">
+                        <i class="fas fa-inbox"></i>
+                        <h3>No pending requests</h3>
+                        <p>New mentorship requests will appear here.</p>
+                    </div>
+                `;
+            }
+            
+            return requests.map(request => {
+                return `
+                    <div class="request-card" data-request-id="${request.id}">
+                        <div class="card-header">
+                            <div class="card-avatar">
+                                <div class="avatar-circle">${request.avatar}</div>
+                                <div>
+                                    <div class="card-title">${request.mentee}</div>
+                                    <div class="card-subtitle">
+                                        <i class="fas fa-user-tag"></i>
+                                        ${request.level}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-actions-top">
+                                <span class="status-badge status-pending">Pending</span>
+                            </div>
+                        </div>
+                        <div class="card-tags">
+                            <span class="tag purple">${request.topic}</span>
+                        </div>
+                        <p class="card-description" style="font-style: italic;">"${request.message}"</p>
+                        <div class="card-footer">
+                            <div class="card-meta">
+                                <div class="card-time">
+                                    <i class="far fa-clock"></i> ${request.time}
+                                </div>
+                            </div>
+                            <div class="card-actions-top">
+                                <button class="icon-action" data-action="accept-request" data-request-id="${request.id}" title="Accept">
+                                    <i class="fas fa-check"></i>
+                                </button>
+                                <button class="icon-action" data-action="decline-request" data-request-id="${request.id}" title="Decline">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                                <button class="icon-action" data-action="view-request" data-request-id="${request.id}" title="View Details">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function generateMenteeCards(mentees) {
+            if (mentees.length === 0) {
+                return `
+                    <div class="empty-state" style="grid-column: 1 / -1;">
+                        <i class="fas fa-user-graduate"></i>
+                        <h3>No mentees yet</h3>
+                        <p>Your mentees will appear here once they book sessions.</p>
+                    </div>
+                `;
+            }
+            
+            return mentees.map(mentee => {
+                return `
+                    <div class="mentee-card" data-mentee-id="${mentee.id}">
+                        <div class="card-header">
+                            <div class="card-avatar">
+                                <div class="avatar-circle">${mentee.avatar}</div>
+                                <div>
+                                    <div class="card-title">${mentee.name}</div>
+                                    <div class="card-subtitle">
+                                        <i class="far fa-calendar-alt"></i>
+                                        Joined ${mentee.joined}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-actions-top">
+                                <span class="status-badge status-confirmed">${mentee.status}</span>
+                            </div>
+                        </div>
+                        <div class="card-footer">
+                            <div class="card-meta">
+                                <div class="card-rating">
+                                    ${'<i class="fas fa-star"></i>'.repeat(mentee.rating)}
+                                    ${mentee.rating < 5 ? '<i class="far fa-star"></i>'.repeat(5 - mentee.rating) : ''}
+                                </div>
+                                <div class="card-time">
+                                    <i class="fas fa-chalkboard-teacher"></i> ${mentee.sessions} sessions
+                                </div>
+                            </div>
+                            <button class="btn btn-outline" data-action="message-mentee" data-mentee-id="${mentee.id}">
+                                Message
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // ============================
+        // EVENT LISTENER ATTACHMENT
+        // ============================
+        function attachSessionCardListeners() {
+            // View session details
+            document.querySelectorAll('[data-action="view-session"]').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const sessionId = btn.getAttribute('data-session-id');
+                    const session = state.sessions.find(s => s.id == sessionId);
+                    
+                    if (session) {
+                        document.getElementById('sessionMenteeName').textContent = session.mentee;
+                        document.getElementById('sessionDateTime').textContent = session.time;
+                        document.getElementById('sessionDuration').textContent = '60 minutes';
+                        document.getElementById('sessionTopic').textContent = session.topic;
+                        document.getElementById('sessionNotes').value = session.notes || '';
+                        
+                        elements.sessionModal.classList.add('show');
+                    }
+                });
+            });
+        }
+
+        function attachRequestCardListeners() {
+            // Accept request
+            document.querySelectorAll('[data-action="accept-request"]').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const requestId = btn.getAttribute('data-request-id');
+                    const request = state.requests.find(r => r.id == requestId);
+                    
+                    if (request) {
+                        if (confirm(`Accept ${request.mentee}'s request for ${request.topic}?`)) {
+                            request.status = 'accepted';
+                            showToast(`Request from ${request.mentee} accepted`, 'success');
+                            loadRequests();
+                            updateCounts();
+                        }
+                    }
+                });
+            });
+
+            // Decline request
+            document.querySelectorAll('[data-action="decline-request"]').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const requestId = btn.getAttribute('data-request-id');
+                    const request = state.requests.find(r => r.id == requestId);
+                    
+                    if (request) {
+                        if (confirm(`Decline ${request.mentee}'s request for ${request.topic}?`)) {
+                            request.status = 'declined';
+                            showToast(`Request from ${request.mentee} declined`, 'info');
+                            loadRequests();
+                            updateCounts();
+                        }
+                    }
+                });
+            });
+
+            // View request details
+            document.querySelectorAll('[data-action="view-request"]').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const requestId = btn.getAttribute('data-request-id');
+                    const request = state.requests.find(r => r.id == requestId);
+                    
+                    if (request) {
+                        document.getElementById('requestMenteeName').textContent = request.mentee;
+                        document.getElementById('requestTopic').textContent = request.topic;
+                        document.getElementById('requestLevel').textContent = request.level;
+                        document.getElementById('requestMessage').textContent = request.message;
+                        
+                        elements.requestModal.classList.add('show');
+                    }
+                });
+            });
+        }
+
+        function attachMenteeCardListeners() {
+            // Message mentee
+            document.querySelectorAll('[data-action="message-mentee"]').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const menteeId = btn.getAttribute('data-mentee-id');
+                    const mentee = state.mentees.find(m => m.id == menteeId);
+                    
+                    if (mentee) {
+                        showToast(`Opening message to ${mentee.name}...`, 'info');
+                    }
+                });
+            });
+        }
+
+        // ============================
+        // FORM SUBMISSION FUNCTIONS
+        // ============================
+        function submitResponse() {
+            const response = document.getElementById('requestResponse').value;
+            const message = document.getElementById('responseMessage').value;
+            
+            if (!response) {
+                showToast('Please select a response', 'error');
+                return;
+            }
+            
+            if (response === 'accept') {
+                showToast('Request accepted! Mentee has been notified.', 'success');
+            } else if (response === 'decline') {
+                showToast('Request declined. Mentee has been notified.', 'info');
+            } else if (response === 'reschedule') {
+                const suggestedTime = document.getElementById('suggestedTime').value;
+                if (!suggestedTime) {
+                    showToast('Please suggest an alternative time', 'error');
+                    return;
+                }
+                showToast('Reschedule suggestion sent to mentee', 'info');
+            }
+            
+            elements.requestModal.classList.remove('show');
+        }
+
+        // ============================
+        // UTILITY FUNCTIONS
+        // ============================
+        function showToast(message, type = 'success') {
+            const toastIcon = elements.toast.querySelector('.toast-icon');
+            toastIcon.className = 'toast-icon ' + type;
+            
+            const icon = toastIcon.querySelector('i');
+            switch(type) {
+                case 'success':
+                    icon.className = 'fas fa-check';
+                    break;
+                case 'error':
+                    icon.className = 'fas fa-exclamation-circle';
+                    break;
+                case 'info':
+                    icon.className = 'fas fa-info-circle';
+                    break;
+            }
+            
+            elements.toastMessage.textContent = message;
+            elements.toast.classList.add('show');
+            
+            setTimeout(() => {
+                elements.toast.classList.remove('show');
+            }, 3000);
+        }
+
+        function handleLogout() {
+            showToast('Logging out...', 'info');
+            setTimeout(() => {
+                showToast('Logged out successfully. Redirecting...', 'success');
+                setTimeout(() => {
+                    alert('In a real application, you would be redirected to the login page.\n\nFor this demo, you can continue using the dashboard.');
+                }, 1000);
+            }, 1500);
+        }
+
+        // Close sidebar when clicking outside on mobile
+        document.addEventListener('click', (e) => {
+            if (window.innerWidth <= 768) {
+                if (!elements.sidebar.contains(e.target) && !elements.menuToggle?.contains(e.target)) {
+                    elements.sidebar.classList.remove('show');
+                }
+            }
+        });
+    </script>
+</body>
+</html>
